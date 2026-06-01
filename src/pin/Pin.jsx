@@ -52,7 +52,9 @@ const STEP_ICONS = {
   plate_the_dish: (
     <svg {...SVG_PROPS}>
       <circle cx="12" cy="12" r="8" />
-      <circle cx="12" cy="12" r="4" />
+      <circle cx="10" cy="11" r="1.3" />
+      <circle cx="14" cy="11" r="1.3" />
+      <circle cx="12" cy="14" r="1.3" />
     </svg>
   ),
   read_the_ticket: (
@@ -74,9 +76,13 @@ const STEP_ICONS = {
   ),
   stock_the_pantry: (
     <svg {...SVG_PROPS}>
-      <rect x="5" y="4" width="14" height="16" rx="1" />
-      <line x1="5" y1="9" x2="19" y2="9" />
-      <line x1="5" y1="14" x2="19" y2="14" />
+      <rect x="4" y="4" width="16" height="16" rx="1" />
+      <line x1="4" y1="11" x2="20" y2="11" />
+      <line x1="4" y1="17" x2="20" y2="17" />
+      <circle cx="8" cy="8.5" r="1.4" />
+      <circle cx="14" cy="8.5" r="1.4" />
+      <rect x="6" y="13" width="3" height="3" rx="0.3" />
+      <rect x="13" y="13" width="3.5" height="3" rx="0.3" />
     </svg>
   ),
 };

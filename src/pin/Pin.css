@@ -77,3 +77,28 @@
   color: var(--color-amber-deep);
   opacity: 0.75;
 }
+
+/* ---------- Entrance animation on active state ---------- */
+
+@keyframes pin-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pin-active .pin-icon,
+.pin-active .pin-text {
+  animation: pin-enter 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin-active .pin-icon,
+  .pin-active .pin-text {
+    animation: none;
+  }
+}
