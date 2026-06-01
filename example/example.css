@@ -49,10 +49,14 @@ h1 {
 }
 
 .controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
   margin-bottom: 1rem;
 }
 
-button {
+.run-button {
   font: inherit;
   padding: 0.5rem 1rem;
   background: #1f2937;
@@ -62,6 +66,48 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.run-button:hover {
   background: #374151;
+}
+
+.speed-control {
+  display: inline-flex;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.speed-button {
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+  background: #fff;
+  color: #374151;
+  border: none;
+  border-right: 1px solid #d1d5db;
+  cursor: pointer;
+}
+
+.speed-button:last-child {
+  border-right: none;
+}
+
+.speed-button:hover {
+  background: #f9fafb;
+}
+
+.speed-button.is-active {
+  background: var(--color-amber-soft);
+  color: var(--color-amber-deep);
+  font-weight: 500;
+}
+
+.run-hint {
+  margin: 0 0 1rem 0;
+  padding: 0.6rem 0.9rem;
+  background: var(--color-amber-soft);
+  border: 1px solid var(--color-amber);
+  border-radius: var(--radius-md);
+  color: var(--color-amber-deep);
+  font-size: 0.875rem;
 }
