@@ -1,12 +1,35 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
-import { createMockSubstrate } from './mock-substrate.js';
+import { createMockSubstrate, SPEED_PRESETS } from './mock-substrate.js';
 import { Pin } from '../src/index.js';
 import '../src/tokens.css';
+
+const SPEED_STORAGE_KEY = 'pim-overlay-speed';
+const SPEED_NAMES = ['slow', 'default', 'fast'];
+
+function loadSavedSpeed() {
+  try {
+    const saved = localStorage.getItem(SPEED_STORAGE_KEY);
+    if (saved && SPEED_NAMES.includes(saved)) return saved;
+  } catch {
+    // localStorage unavailable (private mode, sandbox); fall through.
+  }
+  return 'default';
+}
+
+function saveSpeed(name) {
+  try {
+    localStorage.setItem(SPEED_STORAGE_KEY, name);
+  } catch {
+    // localStorage unavailable; silently skip.
+  }
+}
 
 function ExampleHarness() {
   const [events, setEvents] = useState([]);
   const [substrate] = useState(() => createMockSubstrate());
+  const [speedName, setSpeedName] = useState(loadSavedSpeed);
+  const [hasRun, setHasRun] = useState(false);
 
   useEffect(() => {
     const unsubscribe = substrate.subscribe((event) => {
@@ -17,14 +40,38 @@ function ExampleHarness() {
 
   function runTurn() {
     setEvents([]);
-    substrate.runScriptedTurn();
+    setHasRun(true);
+    substrate.runScriptedTurn(SPEED_PRESETS[speedName]);
+  }
+
+  function selectSpeed(name) {
+    setSpeedName(name);
+    saveSpeed(name);
   }
 
   return (
     <div>
       <div className="controls">
-        <button onClick={runTurn}>Run a scripted turn</button>
+        <button className="run-button" onClick={runTurn}>Run a scripted turn</button>
+        <div className="speed-control" role="group" aria-label="Step speed">
+          {SPEED_NAMES.map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={`speed-button ${speedName === name ? 'is-active' : ''}`}
+              onClick={() => selectSpeed(name)}
+              aria-pressed={speedName === name}
+            >
+              {name.charAt(0).toUpperCase() + name.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
+      {!hasRun && (
+        <div className="run-hint" role="note">
+          Click <strong>Run a scripted turn</strong> to see the Pin react.
+        </div>
+      )}
       <section className="pin-mount">
         <h2>Pin renderer</h2>
         <Pin substrate={substrate} />
@@ -34,7 +81,7 @@ function ExampleHarness() {
         <div id="event-log">
           {events.length === 0 ? (
             <div className="event-row">
-              <em>Click &quot;Run a scripted turn&quot; to begin. Events will appear here.</em>
+              <em>Events will appear here once a turn runs.</em>
             </div>
           ) : (
             events.map((e, i) => (
