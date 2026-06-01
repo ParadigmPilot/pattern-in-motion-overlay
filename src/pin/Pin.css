@@ -1,0 +1,79 @@
+/* ============================================================
+   Pin — Pattern-in-Motion overlay
+   Ephemeral per-state spotlight rendered during a turn.
+
+   Constraints honored:
+     D-WS2-2: fixed reserved height across all states; no layout shift
+     D-WS2-4: declarative state-class motion; no imperative animation
+     D-WS2-5: inline SVG with currentColor; no <img> refs
+
+   Tokens consumed (see ../tokens.css):
+     --pin-reserved-height, --space-3, --space-4, --radius-md,
+     --transition-base, --font-body, --font-size-base, --font-size-sm,
+     --font-weight-regular, --font-weight-semibold, --line-height-snug,
+     --color-amber-soft, --color-amber, --color-amber-deep,
+     --color-charcoal, --color-stone
+   ============================================================ */
+
+.pin {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--pin-reserved-height);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  line-height: var(--line-height-snug);
+  box-sizing: border-box;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base);
+}
+
+.pin-idle {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--color-stone);
+}
+
+.pin-active {
+  background-color: var(--color-amber-soft);
+  border: 1px solid var(--color-amber);
+  color: var(--color-amber-deep);
+}
+
+.pin-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-amber);
+}
+
+.pin-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pin-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pin-anchor {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-amber-deep);
+}
+
+.pin-peg {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-amber-deep);
+  opacity: 0.75;
+}
