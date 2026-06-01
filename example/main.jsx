@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { createMockSubstrate } from './mock-substrate.js';
 import { Pin } from '../src/index.js';
+import '../src/tokens.css';
 
 function ExampleHarness() {
   const [events, setEvents] = useState([]);

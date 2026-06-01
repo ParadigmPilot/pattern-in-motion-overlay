@@ -1,0 +1,51 @@
+/* ============================================================
+   Pattern-in-Motion Overlay — Design Tokens (subset)
+
+   Ported subset of Restaurant Pattern™ brand tokens. Pin
+   consumes the tokens defined here. Trace and Mode Toggle
+   extend this file as their consumption surfaces.
+
+   Brand canonical (upstream — copy values from here when
+   palette updates ship):
+     restaurant-pattern-site/src/styles/tokens.css
+
+   Naming convention:
+     - Brand tokens are unprefixed. Consumer hosts may
+       override any of them under :root or a host-app scope.
+     - Component-internal tokens carry a component prefix
+       (e.g., --pin-*). These are implementation details
+       and are not intended for override as part of brand
+       theming.
+   ============================================================ */
+
+:root {
+  /* ---------- COLOR · FOUNDATIONS ---------- */
+  --color-charcoal:   #2B241E;  /* Body text on light surfaces */
+  --color-stone:      #766C5F;  /* Supporting text, captions, meta */
+
+  /* ---------- COLOR · ACCENT (Amber, primary) ---------- */
+  --color-amber-soft: #F4E1CC;  /* Active-state fills */
+  --color-amber:      #B8621F;  /* Canon — strokes, icon strokes, marks */
+  --color-amber-deep: #5A2F0E;  /* Text color on amber-soft fills */
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-body:            'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-base:       1rem;     /* 16px */
+  --font-size-sm:         0.875rem; /* 14px */
+  --font-weight-regular:  400;
+  --font-weight-semibold: 600;
+  --line-height-snug:     1.4;
+
+  /* ---------- SPACING ---------- */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+
+  /* ---------- RADII ---------- */
+  --radius-md: 0.5rem;  /* 8px */
+
+  /* ---------- TRANSITIONS ---------- */
+  --transition-base: 250ms ease;
+
+  /* ---------- PIN-INTERNAL ---------- */
+  --pin-reserved-height: 4rem;  /* 64px — fixed height per D-WS2-2 (Marcus Fontoura constraint); preserved across all Pin state transitions */
+}
