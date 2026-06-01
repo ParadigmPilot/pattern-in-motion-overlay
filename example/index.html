@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pattern in Motion overlay — /example</title>
+    <style>
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #fafaf7;
+        color: #1f2937;
+      }
+      header { margin-bottom: 1.5rem; }
+      h1 { margin: 0 0 0.25rem 0; font-size: 1.25rem; }
+      .subtitle { color: #6b7280; font-size: 0.875rem; }
+      #event-log {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      .event-row { padding: 0.25rem 0; border-bottom: 1px solid #f3f4f6; }
+      .event-row:last-child { border-bottom: none; }
+      .event-row.step_started { color: #047857; }
+      .event-row.step_ended { color: #6366f1; }
+      .controls { margin-bottom: 1rem; }
+      button {
+        font: inherit;
+        padding: 0.5rem 1rem;
+        background: #1f2937;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:hover { background: #374151; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Pattern in Motion overlay — <code>/example</code></h1>
+      <div class="subtitle">
+        Bootstrap harness. A mock substrate fires <code>step_started</code> / <code>step_ended</code> events on a scripted turn timeline; this page logs them as they arrive.
+        Pin renderer lands in WO-313.1.b.
+      </div>
+    </header>
+    <div id="root"></div>
+    <script type="module" src="./main.jsx"></script>
+  </body>
+</html>
