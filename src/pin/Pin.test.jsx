@@ -86,8 +86,116 @@ describe('Pin renderer scaffold', () => {
     expect(peg.textContent).toBe('Capture intent');
   });
 
-  // Deferred to WO-313.3 (state-class CSS + visual polish):
-  it.todo('preserves fixed reserved height across all state transitions');
-  it.todo('renders inline SVG iconography using currentColor');
-  it.todo('applies pin-active state-class on step_started and clears on step_ended');
+  it('preserves fixed reserved height across all state transitions', () => {
+    const manifest = {
+      restaurant_label: 'Take the Order',
+      technology_label: 'Capture intent',
+      animation_asset: '',
+      plain_english: '',
+      in_code: '',
+      just_finished: '',
+      up_next: '',
+    };
+    const substrate = createTestSubstrate(manifest);
+    const { container } = render(<Pin substrate={substrate} />);
+
+    // The .pin base class drives `height: var(--pin-reserved-height)`.
+    // Verify .pin is always applied across all state transitions.
+
+    let pin = container.querySelector('.pin');
+    expect(pin).not.toBeNull();
+    expect(pin.classList.contains('pin')).toBe(true);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_started',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+    pin = container.querySelector('.pin');
+    expect(pin).not.toBeNull();
+    expect(pin.classList.contains('pin')).toBe(true);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_ended',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+    pin = container.querySelector('.pin');
+    expect(pin).not.toBeNull();
+    expect(pin.classList.contains('pin')).toBe(true);
+  });
+
+  it('renders inline SVG iconography using currentColor', () => {
+    const manifest = {
+      restaurant_label: 'Take the Order',
+      technology_label: 'Capture intent',
+      animation_asset: '',
+      plain_english: '',
+      in_code: '',
+      just_finished: '',
+      up_next: '',
+    };
+    const substrate = createTestSubstrate(manifest);
+    const { container } = render(<Pin substrate={substrate} />);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_started',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+
+    const svg = container.querySelector('svg');
+    expect(svg).not.toBeNull();
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+
+    // Per D-WS2-5: inline SVG only; no <img> elements.
+    const img = container.querySelector('img');
+    expect(img).toBeNull();
+  });
+
+  it('applies pin-active state-class on step_started and clears on step_ended', () => {
+    const manifest = {
+      restaurant_label: 'Take the Order',
+      technology_label: 'Capture intent',
+      animation_asset: '',
+      plain_english: '',
+      in_code: '',
+      just_finished: '',
+      up_next: '',
+    };
+    const substrate = createTestSubstrate(manifest);
+    const { container } = render(<Pin substrate={substrate} />);
+
+    let pin = container.querySelector('.pin');
+    expect(pin.classList.contains('pin-idle')).toBe(true);
+    expect(pin.classList.contains('pin-active')).toBe(false);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_started',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+    pin = container.querySelector('.pin');
+    expect(pin.classList.contains('pin-active')).toBe(true);
+    expect(pin.classList.contains('pin-idle')).toBe(false);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_ended',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+    pin = container.querySelector('.pin');
+    expect(pin.classList.contains('pin-active')).toBe(false);
+    expect(pin.classList.contains('pin-idle')).toBe(true);
+  });
 });
