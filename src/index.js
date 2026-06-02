@@ -6,12 +6,21 @@
  * Restaurant Pattern's pattern-in-motion overlay.
  *
  * Component lineup:
- *   Pin        — ephemeral per-state spotlight (WO-313.2.a — this scaffold)
- *   Trace      — six-pill row, chat-history persistent (WO-313.4)
- *   Toggle     — Manual / Automatic mode switch (WO-313.7)
- *   Cycle 314+ — manual-mode overlay, response-ready strip, capture
+ *   Pin            — ephemeral per-state spotlight (WO-313.2.a — shipped)
+ *   Pill           — generic Service-step badge primitive (WO-313.4.a — this scaffold)
+ *   Trace          — Restaurant-Pattern-specific six-pill row (WO-313.4.a — this scaffold)
+ *   useStepStates  — generic step-state subscription hook (WO-313.4.a — this scaffold)
+ *   Toggle         — Manual / Automatic mode switch (WO-313.7)
+ *   Cycle 314+     — manual-mode overlay, response-ready strip, capture
+ *
+ * Composition guide for third-party use cases (N != 6 steps, non-Restaurant-
+ * Pattern domains): import { Pill, useStepStates } and compose a custom
+ * container. See README §Composition and AGENTS.md for worked examples.
  */
 
 export { Pin } from './pin/Pin.jsx';
+export { Pill } from './pill/Pill.jsx';
+export { Trace } from './trace/Trace.jsx';
+export { useStepStates } from './hooks/useStepStates.js';
 
 export const VERSION = '0.0.0';

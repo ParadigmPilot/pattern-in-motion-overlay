@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { createMockSubstrate, SPEED_PRESETS } from './mock-substrate.js';
-import { Pin } from '../src/index.js';
+import { Pin, Trace } from '../src/index.js';
 import '../src/tokens.css';
 
 const SPEED_STORAGE_KEY = 'pim-overlay-speed';
@@ -75,6 +75,10 @@ function ExampleHarness() {
       <section className="pin-mount">
         <h2>Pin renderer</h2>
         <Pin substrate={substrate} />
+      </section>
+      <section className="trace-mount">
+        <h2>Trace renderer</h2>
+        <Trace substrate={substrate} />
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>
