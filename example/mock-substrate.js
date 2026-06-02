@@ -16,7 +16,7 @@
  * implicit-idle state and is not started/ended explicitly.
  */
 
-const SERVICE_STEPS = [
+export const SERVICE_STEPS = [
   'take_the_order',
   'brief_the_chef',
   'plate_the_dish',
