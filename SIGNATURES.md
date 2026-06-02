@@ -30,7 +30,7 @@ Constructs a new state machine instance tracking the set of currently active Ser
 **Example:**
 
 ```js
-import { createStateMachine } from '';
+import { createStateMachine } from '[substrate-package]';
 
 const machine = createStateMachine();
 machine.startStep('take_the_order');   // active: { take_the_order }
@@ -78,7 +78,7 @@ Wraps a state machine with `step_started` / `step_ended` event emission and a su
 **Example:**
 
 ```js
-import { createStateMachine, createEventStream } from '';
+import { createStateMachine, createEventStream } from '[substrate-package]';
 
 const machine = createStateMachine();
 const stream = createEventStream(machine);
@@ -87,8 +87,8 @@ const unsubscribe = stream.subscribe((event) => {
   console.log(event.type, event.stepId, event.timestamp);
 });
 
-stream.startStep('take_the_order');   // logs: step_started take_the_order 
-stream.endStep('take_the_order');     // logs: step_ended take_the_order 
+stream.startStep('take_the_order');   // logs: step_started take_the_order [ms]
+stream.endStep('take_the_order');     // logs: step_ended take_the_order [ms]
 
 unsubscribe();                         // detach
 ```
@@ -118,7 +118,7 @@ Resolves the seven-field per-state manifest for a given `stepId` from a caller-p
   plain_english:    string,    // Plain-English explanation of the step
   in_code:          string,    // Technology-frame operation name (operations, not frameworks)
   just_finished:    string,    // Restaurant-frame recap of the prior step
-  up_next:          string,    // Restaurant-frame "Next:  ... — " pointer to the next step
+  up_next:          string,    // Restaurant-frame "Next: [Verb] ... — [why]" pointer to the next step
 }
 ```
 
@@ -133,7 +133,7 @@ Resolves the seven-field per-state manifest for a given `stepId` from a caller-p
 **Example:**
 
 ```js
-import { loadManifest } from '';
+import { loadManifest } from '[substrate-package]';
 
 const manifests = {
   take_the_order: {
@@ -196,7 +196,7 @@ Validates a manifest's content against the content rules defined in [`station-ar
 **Example:**
 
 ```js
-import { validateContent } from '';
+import { validateContent } from '[substrate-package]';
 
 const diagnostics = validateContent(manifest, 'take_the_order');
 if (diagnostics.length > 0) {
