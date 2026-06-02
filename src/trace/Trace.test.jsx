@@ -191,6 +191,36 @@ describe('Trace renderer scaffold', () => {
     expect(substrate.hasListener()).toBe(true);
   });
 
-  // Deferred to subsequent OBJ-2 WO:
-  it.todo('applies state-class CSS visual treatment to pills (313.6)');
+  it('applies the matching pill-{state} class to each pill across all three states', () => {
+    const substrate = createTestSubstrate();
+    const mixed = new Map([
+      ['take_the_order',  'complete'],
+      ['brief_the_chef',  'complete'],
+      ['plate_the_dish',  'active'],
+      ['read_the_ticket', 'queued'],
+      ['serve_by_type',   'queued'],
+      ['stock_the_pantry','queued'],
+    ]);
+    const { container } = render(<Trace substrate={substrate} states={mixed} />);
+
+    expect(
+      container.querySelector('[data-step-id="take_the_order"]').classList.contains('pill-complete')
+    ).toBe(true);
+    expect(
+      container.querySelector('[data-step-id="plate_the_dish"]').classList.contains('pill-active')
+    ).toBe(true);
+    expect(
+      container.querySelector('[data-step-id="read_the_ticket"]').classList.contains('pill-queued')
+    ).toBe(true);
+  });
+
+  it('renders STEP_ICONS in each pill icon slot', () => {
+    const substrate = createTestSubstrate();
+    const { container } = render(<Trace substrate={substrate} />);
+    const slots = container.querySelectorAll('.pill-icon');
+    expect(slots.length).toBe(6);
+    slots.forEach((slot) => {
+      expect(slot.querySelector('svg')).not.toBeNull();
+    });
+  });
 });
