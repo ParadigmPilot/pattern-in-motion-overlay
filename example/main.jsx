@@ -58,6 +58,7 @@ function ExampleHarness() {
     ]);
     setActiveTurnKey((key) => key + 1);
     setEvents([]);
+    setHasRun(false);
   }
 
   function selectSpeed(name) {
@@ -69,7 +70,7 @@ function ExampleHarness() {
     <div>
       <div className="controls">
         <button className="run-button" onClick={runTurn}>Run a scripted turn</button>
-        <button className="new-turn-button" onClick={newTurn}>New turn</button>
+        <button className="new-turn-button" onClick={newTurn} disabled={!hasRun}>New turn</button>
         <div className="speed-control" role="group" aria-label="Step speed">
           {SPEED_NAMES.map((name) => (
             <button
