@@ -1,0 +1,112 @@
+/* ============================================================
+   Pill — Pattern-in-Motion overlay
+   Generic Service-step badge primitive.
+
+   State vocabulary: queued / active / complete.
+   Reserved geometry: fixed height + min-width across all states.
+   Icon slot: optional, sized 1.25rem.
+   Mnemonic hierarchy: anchor (strong) + peg (supporting).
+
+   Tokens consumed (see ../tokens.css):
+     --pill-reserved-height, --pill-reserved-min-width,
+     --space-3, --radius-md, --transition-base,
+     --font-body, --font-size-sm, --line-height-snug,
+     --font-weight-regular, --font-weight-semibold,
+     --color-stone, --color-amber-soft, --color-amber, --color-amber-deep
+   ============================================================ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--pill-reserved-height);
+  min-width: var(--pill-reserved-min-width);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  line-height: var(--line-height-snug);
+  list-style: none;
+  box-sizing: border-box;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    opacity var(--transition-base);
+}
+
+/* ---------- State vocabulary ---------- */
+
+.pill-queued {
+  background-color: transparent;
+  border-color: var(--color-stone);
+  color: var(--color-stone);
+  opacity: 0.65;
+}
+
+.pill-active {
+  background-color: var(--color-amber-soft);
+  border-color: var(--color-amber);
+  color: var(--color-amber-deep);
+}
+
+.pill-complete {
+  background-color: var(--color-amber-soft);
+  border-color: var(--color-amber-deep);
+  color: var(--color-amber-deep);
+  opacity: 0.8;
+}
+
+/* ---------- Inner slots ---------- */
+
+.pill-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.pill-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pill-anchor {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pill-peg {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  opacity: 0.75;
+}
+
+.pill-fallback {
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* ---------- Entrance animation on active state ---------- */
+
+@keyframes pill-active-enter {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.pill-active {
+  animation: pill-active-enter 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill-active {
+    animation: none;
+  }
+}

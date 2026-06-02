@@ -110,6 +110,15 @@ export function MyTrace({ substrate }) {
 
 4. (Optional) Pass `manifest` props if you have label data. Pill renders `manifest.restaurant_label` and `manifest.technology_label` when both are present; otherwise it falls back to rendering the `stepId` text.
 
+5. (Optional) Pass an `icon` prop (any React node) to render iconography in the pill's icon slot before the text. Pill is domain-agnostic — the consumer chooses the icon. For Restaurant Pattern hosts building a custom container, the canonical six-icon set is exported as `STEP_ICONS` (and the SVG container convention as `SVG_PROPS`):
+
+```jsx
+import { Pill, useStepStates, STEP_ICONS } from '@paradigmpilot/pattern-in-motion-overlay';
+
+// ... inside your custom container:
+
+```
+
 ## Common pitfalls
 
 1. **Unstable steps array.** Passing a fresh array literal to `useStepStates` on every render causes the hook to re-subscribe on every render. Define `steps` at module scope or wrap in `useMemo`.

@@ -70,8 +70,59 @@ describe('Pill primitive', () => {
     expect(fallback.textContent).toBe('serve_by_type');
   });
 
-  // Deferred to subsequent OBJ-2 WOs:
-  it.todo('renders inline SVG iconography using currentColor (313.5/313.6)');
-  it.todo('applies pill-active state-class visual treatment via CSS (313.5/313.6)');
-  it.todo('preserves fixed reserved geometry across state transitions (313.5/313.6)');
+  it('renders inline SVG iconography using currentColor when icon prop provided', () => {
+    const TestIcon = () => (
+      <svg data-testid="test-icon" stroke="currentColor" fill="none">
+        <circle cx="12" cy="12" r="6" />
+      </svg>
+    );
+    const { container, getByTestId } = render(
+      <ol><Pill stepId="take_the_order" state="active" icon={<TestIcon />} /></ol>
+    );
+    const slot = container.querySelector('.pill-icon');
+    expect(slot).not.toBeNull();
+    const svg = getByTestId('test-icon');
+    expect(svg).not.toBeNull();
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+  });
+
+  it('omits the icon slot when no icon prop is provided', () => {
+    const { container } = render(
+      <ol><Pill stepId="take_the_order" state="active" /></ol>
+    );
+    expect(container.querySelector('.pill-icon')).toBeNull();
+  });
+
+  it('applies the matching pill-{state} class for each render state', () => {
+    const { container, rerender } = render(
+      <ol><Pill stepId="x" state="queued" /></ol>
+    );
+    let pill = container.querySelector('.pill');
+    expect(pill.classList.contains('pill-queued')).toBe(true);
+    expect(pill.classList.contains('pill-active')).toBe(false);
+    expect(pill.classList.contains('pill-complete')).toBe(false);
+
+    rerender(<ol><Pill stepId="x" state="active" /></ol>);
+    pill = container.querySelector('.pill');
+    expect(pill.classList.contains('pill-active')).toBe(true);
+    expect(pill.classList.contains('pill-queued')).toBe(false);
+
+    rerender(<ol><Pill stepId="x" state="complete" /></ol>);
+    pill = container.querySelector('.pill');
+    expect(pill.classList.contains('pill-complete')).toBe(true);
+    expect(pill.classList.contains('pill-active')).toBe(false);
+  });
+
+  it('preserves the .pill base class across all state transitions (reserved geometry rule applies)', () => {
+    const { container, rerender } = render(
+      <ol><Pill stepId="x" state="queued" /></ol>
+    );
+    expect(container.querySelector('.pill').classList.contains('pill')).toBe(true);
+
+    rerender(<ol><Pill stepId="x" state="active" /></ol>);
+    expect(container.querySelector('.pill').classList.contains('pill')).toBe(true);
+
+    rerender(<ol><Pill stepId="x" state="complete" /></ol>);
+    expect(container.querySelector('.pill').classList.contains('pill')).toBe(true);
+  });
 });

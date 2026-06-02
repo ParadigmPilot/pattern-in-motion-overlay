@@ -1,3 +1,5 @@
+import './Pill.css';
+
 /**
  * Pill primitive — a single Service-step badge.
  *
@@ -17,9 +19,11 @@
  * `<ol class="trace">`). Non-list contexts are an owed future extension via
  * a polymorphic `as` prop; not implemented in this scaffold.
  *
- * State-class CSS for visual treatment and inline-SVG iconography land in
- * subsequent OBJ-2 WOs (313.5 / 313.6). This scaffold carries semantic
- * structure only.
+ * State-class CSS for visual treatment lives in `./Pill.css`; inline-SVG
+ * iconography is opt-in via the `icon` prop. Pill is domain-agnostic — the
+ * consumer chooses the icon. For Restaurant Pattern hosts, the canonical
+ * six-icon set is exported as `STEP_ICONS` from the package's public
+ * surface (`src/index.js`) and is what Trace internally hands to Pill.
  *
  * @param {Object} props
  * @param {string} props.stepId — step identifier (any string; opaque to Pill)
@@ -27,14 +31,19 @@
  * @param {Object} [props.manifest] — optional seven-field manifest per
  *   D-WS1-6; when present, `restaurant_label` and `technology_label` are
  *   rendered. When absent, Pill falls back to rendering the stepId.
+ * @param {React.ReactNode} [props.icon] — optional icon (any React node)
+ *   rendered in the pill's icon slot before the text. Consumers in
+ *   non-Restaurant domains pass their own iconography; Restaurant hosts
+ *   typically receive `STEP_ICONS[stepId]` from Trace.
  */
-export function Pill({ stepId, state, manifest }) {
+export function Pill({ stepId, state, manifest, icon }) {
   return (
     <li
       className={`pill pill-${state}`}
       data-step-id={stepId}
       aria-current={state === 'active' ? 'step' : undefined}
     >
+      {icon ? <span className="pill-icon">{icon}</span> : null}
       {manifest ? (
         <>
           <strong className="pill-anchor">{manifest.restaurant_label}</strong>
