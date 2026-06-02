@@ -28,9 +28,9 @@ import { Pin, Trace } from '@paradigmpilot/pattern-in-motion-overlay';
 function ChatView({ substrate }) {
   return (
     <>
-      
+      <Pin substrate={substrate} />
       {/* user message */}
-      
+      <Trace substrate={substrate} />
       {/* assistant response */}
     </>
   );
@@ -53,11 +53,11 @@ export function MyWorkflowTrace({ substrate }) {
   const states = useStepStates(substrate, MY_STEPS);
 
   return (
-    
+    <ol className="my-trace" aria-label="Workflow progress">
       {MY_STEPS.map((stepId) => (
-        
+        <Pill key={stepId} stepId={stepId} state={states.get(stepId)} />
       ))}
-    
+    </ol>
   );
 }
 ```

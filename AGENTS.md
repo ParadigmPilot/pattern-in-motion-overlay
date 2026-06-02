@@ -35,7 +35,7 @@ const substrate = {
     // Return a function that unregisters the callback when invoked.
   },
 
-  // Required for  and  only.
+  // Required for <Trace> and <Pin> only.
   loadManifest(stepId) {
     return {
       restaurant_label: '...',
@@ -66,9 +66,9 @@ import { Pin, Trace } from '@paradigmpilot/pattern-in-motion-overlay';
 function ChatView({ substrate }) {
   return (
     <>
-      
+      <Pin substrate={substrate} />
       {/* user message */}
-      
+      <Trace substrate={substrate} />
       {/* assistant response */}
     </>
   );
@@ -99,11 +99,11 @@ const MY_STEPS = ['step_a', 'step_b', 'step_c'];
 export function MyTrace({ substrate }) {
   const states = useStepStates(substrate, MY_STEPS);
   return (
-    
+    <ol className="my-trace" aria-label="Progress">
       {MY_STEPS.map((stepId) => (
-        
+        <Pill key={stepId} stepId={stepId} state={states.get(stepId)} />
       ))}
-    
+    </ol>
   );
 }
 ```
