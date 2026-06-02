@@ -1,6 +1,6 @@
 # Pattern in Motion overlay
 
-Animated mnemonic overlay for the Restaurant Pattern. Renders inside the Intake Triager hosted demo (and any other consumer) by subscribing to the substrate hook contract published in [`intake-triager/src/substrate/HOOK_CONTRACT.md`](https://github.com/ParadigmPilot/intake-triager/blob/main/src/substrate/HOOK_CONTRACT.md).
+Animated mnemonic overlay for the Restaurant Pattern. Renders inside the Intake Triager hosted demo (and any other consumer) by subscribing to the substrate hook contract published in [`CONTRACT.md`](./CONTRACT.md).
 
 ## What this is
 
@@ -41,7 +41,8 @@ This repository is currently published under an "All Rights Reserved" placeholde
 
 ## Related governance
 
-- [`HOOK_CONTRACT.md`](https://github.com/ParadigmPilot/intake-triager/blob/main/src/substrate/HOOK_CONTRACT.md) — substrate consumer contract
+- [`CONTRACT.md`](./CONTRACT.md) — substrate consumer contract
+- [`SIGNATURES.md`](./SIGNATURES.md) — per-export signatures (consumer-facing JSDoc mirror)
 - [`station-architecture-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/311/station-architecture-scoping-document.md) — overlay architecture (state machine, manifest schema, component roadmap)
 - [`reference-implementation-vs-overlay-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/312/reference-implementation-vs-overlay-scoping-document.md) — separation contract (Option C Fully Detached)
 - [`restaurant-pattern-portfolio-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/313/restaurant-pattern-portfolio-scoping-document.md) — portfolio contract
