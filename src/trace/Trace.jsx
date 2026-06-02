@@ -19,14 +19,31 @@ import { Pill } from '../pill/Pill.jsx';
  * and renders six `<Pill>` primitives in canonical order inside an
  * `<ol class="trace">`.
  *
- * Persistence across turns / chat-history mount semantics land in WO-313.5
- * (OBJ-2 continuation). This scaffold carries per-turn render only.
+ * Controlled / uncontrolled (WO-313.5a):
+ *   - Uncontrolled (no `states` prop): Trace owns a live `useStepStates`
+ *     subscription for the current turn. This is the default and the
+ *     third-party recipe.
+ *   - Controlled (`states` prop provided): Trace renders presentationally
+ *     from the supplied Map and does NOT subscribe. A controlled Trace is
+ *     therefore immune to later substrate events — the basis for persisting
+ *     a finished turn in chat history while later turns animate on the same
+ *     shared event stream.
+ *
+ * The host owns turn boundaries (per CONTRACT.md — the substrate tracks
+ * steps, not turns; no turn-end event is emitted). A chat-history container
+ * stacks finished turns as controlled `<Trace>` rows and renders the active
+ * turn as an uncontrolled `<Trace>`, inline and co-located with chat per
+ * D-WS2-1. See example/main.jsx for the worked harness.
  *
  * @param {Object} props
  * @param {{ subscribe: Function, loadManifest: Function }} props.substrate
  *   Host-bound substrate adapter. Must expose `subscribe(callback)` returning
  *   an unsubscribe function, and `loadManifest(stepId)` returning a frozen
  *   seven-field manifest per HOOK_CONTRACT.md.
+ * @param {Map<string, 'queued'|'active'|'complete'>} [props.states]
+ *   Optional frozen per-step state Map. When provided, Trace renders from it
+ *   and does not subscribe (controlled mode). When omitted, Trace subscribes
+ *   live (uncontrolled mode).
  */
 
 const SERVICE_STEPS = [
@@ -38,9 +55,7 @@ const SERVICE_STEPS = [
   'stock_the_pantry',
 ];
 
-export function Trace({ substrate }) {
-  const states = useStepStates(substrate, SERVICE_STEPS);
-
+export function Trace({ substrate, states }) {
   const manifests = useMemo(() => {
     const m = {};
     for (const stepId of SERVICE_STEPS) {
@@ -49,6 +64,27 @@ export function Trace({ substrate }) {
     return m;
   }, [substrate]);
 
+  // Controlled: render from supplied states; do not subscribe.
+  if (states) {
+    return <TraceRow states={states} manifests={manifests} />;
+  }
+
+  // Uncontrolled: own a live subscription for the current turn.
+  return <LiveTrace substrate={substrate} manifests={manifests} />;
+}
+
+/**
+ * Uncontrolled subscriber. Isolated as its own component so the
+ * `useStepStates` hook is mounted only in uncontrolled mode — a controlled
+ * Trace never instantiates it, and therefore never subscribes.
+ */
+function LiveTrace({ substrate, manifests }) {
+  const states = useStepStates(substrate, SERVICE_STEPS);
+  return <TraceRow states={states} manifests={manifests} />;
+}
+
+/** Pure presentational six-pill row. */
+function TraceRow({ states, manifests }) {
   return (
     <ol className="trace" aria-label="Service step progress">
       {SERVICE_STEPS.map((stepId) => (

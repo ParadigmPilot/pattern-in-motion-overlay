@@ -138,8 +138,59 @@ describe('Trace renderer scaffold', () => {
     });
   });
 
-  // Deferred to subsequent OBJ-2 WOs:
-  it.todo('persists pill states across turns within a chat-history slot (313.5)');
+  it('controlled mode renders supplied states without subscribing', () => {
+    const substrate = createTestSubstrate();
+    const frozen = new Map(SERVICE_STEPS.map((s) => [s, 'complete']));
+    const { container } = render(<Trace substrate={substrate} states={frozen} />);
+
+    expect(substrate.hasListener()).toBe(false);
+
+    const pills = container.querySelectorAll('.pill');
+    expect(pills.length).toBe(6);
+    pills.forEach((pill) => {
+      expect(pill.classList.contains('pill-complete')).toBe(true);
+    });
+  });
+
+  it('persists a finished turn — a controlled Trace is immune to later events', () => {
+    const substrate = createTestSubstrate();
+    const frozen = new Map(SERVICE_STEPS.map((s) => [s, 'complete']));
+    const { container } = render(<Trace substrate={substrate} states={frozen} />);
+
+    act(() => {
+      substrate.emit({
+        type: 'step_started',
+        stepId: 'take_the_order',
+        timestamp: Date.now(),
+      });
+    });
+
+    const target = container.querySelector('[data-step-id="take_the_order"]');
+    expect(target.classList.contains('pill-complete')).toBe(true);
+    expect(target.classList.contains('pill-active')).toBe(false);
+  });
+
+  it('mounts finished and active turns inline in chat-history order (D-WS2-1)', () => {
+    const substrate = createTestSubstrate();
+    const finished = new Map(SERVICE_STEPS.map((s) => [s, 'complete']));
+    const { container } = render(
+      <div>
+        <Trace substrate={substrate} states={finished} />
+        <Trace substrate={substrate} />
+      </div>,
+    );
+
+    const traces = container.querySelectorAll('.trace');
+    expect(traces.length).toBe(2);
+
+    // Document order is chat-history order: finished turn first, active second.
+    expect(traces[0].querySelectorAll('.pill-complete').length).toBe(6);
+    expect(traces[1].querySelectorAll('.pill-queued').length).toBe(6);
+
+    // Only the active (uncontrolled) turn holds a live subscription.
+    expect(substrate.hasListener()).toBe(true);
+  });
+
+  // Deferred to subsequent OBJ-2 WO:
   it.todo('applies state-class CSS visual treatment to pills (313.6)');
-  it.todo('mounts at the canonical chat-history placement per D-WS2-1 (313.5)');
 });
