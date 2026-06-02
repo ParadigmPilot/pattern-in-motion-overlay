@@ -1,0 +1,21 @@
+/* ============================================================
+   Trace — Pattern-in-Motion overlay
+   Row container for the six-pill Service-step progress strip.
+
+   Trace renders <ol class="trace"> containing six <Pill> primitives.
+   Per-pill state vocabulary lives in ../pill/Pill.css; Trace's CSS
+   responsibility is the row container only.
+
+   Tokens consumed (see ../tokens.css):
+     --space-3
+   ============================================================ */
+
+.trace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}

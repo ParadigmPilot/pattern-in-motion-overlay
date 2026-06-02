@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useStepStates } from '../hooks/useStepStates.js';
 import { Pill } from '../pill/Pill.jsx';
+import { STEP_ICONS } from '../icons/StepIcons.jsx';
+import './Trace.css';
 
 /**
  * Trace renderer — six-pill row of Service-step progress per turn.
@@ -93,6 +95,7 @@ function TraceRow({ states, manifests }) {
           stepId={stepId}
           state={states.get(stepId)}
           manifest={manifests[stepId]}
+          icon={STEP_ICONS[stepId]}
         />
       ))}
     </ol>
