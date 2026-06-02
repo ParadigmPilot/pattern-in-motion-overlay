@@ -8,12 +8,113 @@ The Pattern in Motion overlay is the visible half of the Restaurant Pattern's pa
 
 This package is genuinely detachable from `intake-triager`. It depends only on the public hook contract surface. The `/example` harness in this repo ships a self-contained mock substrate so the overlay runs without the reference implementation present.
 
+**Shipped today:** `<Pin>` · `<Trace>` · `<Pill>` · `useStepStates`. **Coming:** `<Toggle>` (Manual / Automatic mode switch), manual-mode overlay, response-ready strip, capture.
+
+## Install
+
+```bash
+npm install @paradigmpilot/pattern-in-motion-overlay
+```
+
+Peer dependency: `react ^18`.
+
 ## Quick start
+
+Drop `<Pin>` and `<Trace>` into a host application that exposes a substrate matching the hook contract:
+
+```jsx
+import { Pin, Trace } from '@paradigmpilot/pattern-in-motion-overlay';
+
+function ChatView({ substrate }) {
+  return (
+    <>
+      
+      {/* user message */}
+      
+      {/* assistant response */}
+    </>
+  );
+}
+```
+
+Both components subscribe automatically. As the substrate fires `step_started` / `step_ended` events, Pin spotlights the active step and Trace marks the corresponding pill `active`, then `complete`.
+
+## Composition — your own steps (N != 6, or non-Restaurant-Pattern domain)
+
+For apps that don't model the Restaurant Pattern's six Service steps, compose a custom container around `<Pill>` and `useStepStates`:
+
+```jsx
+import { Pill, useStepStates } from '@paradigmpilot/pattern-in-motion-overlay';
+
+// Stable reference required — define at module scope or wrap in useMemo.
+const MY_STEPS = ['intake', 'triage', 'diagnose', 'treat', 'discharge'];
+
+export function MyWorkflowTrace({ substrate }) {
+  const states = useStepStates(substrate, MY_STEPS);
+
+  return (
+    
+      {MY_STEPS.map((stepId) => (
+        
+      ))}
+    
+  );
+}
+```
+
+The hook handles subscription lifecycle and state-map mechanics; `<Pill>` handles rendering. Your substrate fires `step_started` / `step_ended` events with your `stepId` values; the hook ignores events whose `stepId` is not in `MY_STEPS`.
+
+To render labels on Pills, pass a `manifest` prop. The seven-field manifest shape is the hook contract's (see [`CONTRACT.md`](./CONTRACT.md)), but `<Pill>` only reads `restaurant_label` and `technology_label` — you can pass any object with those two fields.
+
+## API reference
+
+### `<Pin substrate />`
+
+Ephemeral per-state spotlight. Renders a single active step at a time; returns to inert when no step is active. State-class CSS and inline-SVG icons included. Restaurant-Pattern-specific (hardcoded to the six canonical Service steps).
+
+| Prop | Type | Required |
+| --- | --- | --- |
+| `substrate` | `{ subscribe, loadManifest }` | yes |
+
+### `<Trace substrate />`
+
+Restaurant-Pattern-specific six-pill row. Hardcoded to the canonical Service steps in canonical order. Subscribes to substrate events and resolves manifests automatically.
+
+| Prop | Type | Required |
+| --- | --- | --- |
+| `substrate` | `{ subscribe, loadManifest }` | yes |
+
+### `<Pill stepId state manifest? />`
+
+Pure presentational step-badge primitive. No substrate subscription. Renders as `<li>` for use inside `<ol>` / `<ul>`.
+
+| Prop | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `stepId` | `string` | yes | Any string; opaque to Pill |
+| `state` | `'queued' \| 'active' \| 'complete'` | yes | Drives the state class |
+| `manifest` | `{ restaurant_label, technology_label, ... }` | no | When present, renders both labels; when absent, falls back to stepId text |
+
+### `useStepStates(substrate, steps)`
+
+Subscribes to substrate events and maintains a `Map<stepId, state>` for the provided steps.
+
+| Argument | Type | Notes |
+| --- | --- | --- |
+| `substrate` | `{ subscribe }` | Host-bound substrate adapter |
+| `steps` | `string[]` | Step IDs in render order; MUST have stable reference across renders |
+
+Returns `Map<string, 'queued' \| 'active' \| 'complete'>`. All steps initialized to `'queued'`. Updates on matching `step_started` (→ `'active'`) and `step_ended` (→ `'complete'`); unmatched events ignored.
+
+## AI coding agents
+
+For AI coding agents (Claude Code, Cursor, Copilot) integrating this package, see [`AGENTS.md`](./AGENTS.md) for structured task recipes.
+
+## Develop locally
 
 ```bash
 npm install
-npm run dev     # starts Vite; open the URL it prints
-npm test        # runs Vitest (zero tests at bootstrap)
+npm run dev     # starts Vite; open the URL it prints to see the /example harness
+npm test        # runs Vitest (24 passing, 6 it.todo on main)
 npm run lint    # runs ESLint
 ```
 
@@ -21,7 +122,11 @@ npm run lint    # runs ESLint
 
 ```
 pattern-in-motion-overlay/
-├── src/                 # overlay components (pin · trace · mode toggle · ...)
+├── src/                 # overlay components and hooks
+│   ├── pin/             # <Pin> renderer
+│   ├── trace/           # <Trace> renderer (Restaurant-Pattern-specific)
+│   ├── pill/            # <Pill> primitive (generic, composable)
+│   ├── hooks/           # useStepStates and other shared hooks
 │   └── index.js         # public API entry
 ├── example/             # /example harness
 │   ├── index.html
@@ -43,6 +148,7 @@ This repository is currently published under an "All Rights Reserved" placeholde
 
 - [`CONTRACT.md`](./CONTRACT.md) — substrate consumer contract
 - [`SIGNATURES.md`](./SIGNATURES.md) — per-export signatures (consumer-facing JSDoc mirror)
+- [`AGENTS.md`](./AGENTS.md) — AI-coding-agent integration guide
 - [`station-architecture-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/311/station-architecture-scoping-document.md) — overlay architecture (state machine, manifest schema, component roadmap)
 - [`reference-implementation-vs-overlay-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/312/reference-implementation-vs-overlay-scoping-document.md) — separation contract (Option C Fully Detached)
 - [`restaurant-pattern-portfolio-scoping-document.md`](https://github.com/ParadigmPilot/ServiceBridge/blob/main/products/hopper/project-management/cycles/313/restaurant-pattern-portfolio-scoping-document.md) — portfolio contract
