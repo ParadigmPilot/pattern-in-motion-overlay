@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
-import { createMockSubstrate, SPEED_PRESETS } from './mock-substrate.js';
+import { createMockSubstrate, SPEED_PRESETS, SERVICE_STEPS } from './mock-substrate.js';
 import { Pin, Trace } from '../src/index.js';
 import '../src/tokens.css';
 
@@ -30,6 +30,10 @@ function ExampleHarness() {
   const [substrate] = useState(() => createMockSubstrate());
   const [speedName, setSpeedName] = useState(loadSavedSpeed);
   const [hasRun, setHasRun] = useState(false);
+  // Host-owned turn model: finished turns persist as frozen state Maps;
+  // activeTurnKey remounts the live (uncontrolled) Trace on a turn boundary.
+  const [finishedTurns, setFinishedTurns] = useState([]);
+  const [activeTurnKey, setActiveTurnKey] = useState(0);
 
   useEffect(() => {
     const unsubscribe = substrate.subscribe((event) => {
@@ -44,6 +48,18 @@ function ExampleHarness() {
     substrate.runScriptedTurn(SPEED_PRESETS[speedName]);
   }
 
+  // Turn boundary (host-owned — the substrate emits no turn-end event).
+  // Archive the just-finished turn as an all-complete frozen Map, then
+  // remount a fresh active Trace.
+  function newTurn() {
+    setFinishedTurns((prev) => [
+      ...prev,
+      new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
+    ]);
+    setActiveTurnKey((key) => key + 1);
+    setEvents([]);
+  }
+
   function selectSpeed(name) {
     setSpeedName(name);
     saveSpeed(name);
@@ -53,6 +69,7 @@ function ExampleHarness() {
     <div>
       <div className="controls">
         <button className="run-button" onClick={runTurn}>Run a scripted turn</button>
+        <button className="new-turn-button" onClick={newTurn}>New turn</button>
         <div className="speed-control" role="group" aria-label="Step speed">
           {SPEED_NAMES.map((name) => (
             <button
@@ -78,7 +95,15 @@ function ExampleHarness() {
       </section>
       <section className="trace-mount">
         <h2>Trace renderer</h2>
-        <Trace substrate={substrate} />
+        {/* Chat-history column (D-WS2-1): finished turns persist as controlled
+            Traces, stacked oldest→newest; the active turn renders last as an
+            uncontrolled Trace. Inline, co-located — no portal, no fixed panel. */}
+        <div className="chat-history">
+          {finishedTurns.map((frozen, i) => (
+            <Trace key={`finished-${i}`} substrate={substrate} states={frozen} />
+          ))}
+          <Trace key={activeTurnKey} substrate={substrate} />
+        </div>
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>
