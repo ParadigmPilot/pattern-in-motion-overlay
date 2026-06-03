@@ -130,3 +130,23 @@ h1 {
   color: var(--color-amber-deep);
   font-size: 0.875rem;
 }
+
+.advance-button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  background: var(--color-amber);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.advance-button:hover {
+  background: var(--color-amber-deep);
+}
+
+.mode-status {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}

@@ -12,7 +12,8 @@
  *   useStepStates   — generic step-state subscription hook (WO-313.4.a — shipped)
  *   STEP_ICONS      — Restaurant Service-step icon set (WO-313.6.a)
  *   SVG_PROPS       — SVG container convention for authored icons (WO-313.6.a)
- *   Toggle          — Manual / Automatic mode switch (WO-313.7)
+ *   Toggle          — Manual / Automatic ("Step") mode switch (WO-313.7.a — shipped)
+ *   createModeGate  — buffer-and-release mode gate; Manual buffers, Automatic forwards (WO-313.7.a — shipped)
  *   Cycle 314+      — manual-mode overlay, response-ready strip, capture
  *
  * Composition guide for third-party use cases (N != 6 steps, non-Restaurant-
@@ -25,5 +26,7 @@ export { Pill } from './pill/Pill.jsx';
 export { Trace } from './trace/Trace.jsx';
 export { useStepStates } from './hooks/useStepStates.js';
 export { STEP_ICONS, CHECK_ICON, SVG_PROPS } from './icons/StepIcons.jsx';
+export { Toggle } from './mode/Toggle.jsx';
+export { createModeGate } from './mode/createModeGate.js';
 
 export const VERSION = '0.0.0';
