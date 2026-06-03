@@ -28,6 +28,12 @@ export const SVG_PROPS = {
   'aria-hidden': 'true',
 };
 
+export const CHECK_ICON = (
+  <svg {...SVG_PROPS}>
+    <polyline points="5 12 10 17 19 8" />
+  </svg>
+);
+
 export const STEP_ICONS = Object.freeze({
   take_the_order: (
     <svg {...SVG_PROPS}>

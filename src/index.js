@@ -24,6 +24,6 @@ export { Pin } from './pin/Pin.jsx';
 export { Pill } from './pill/Pill.jsx';
 export { Trace } from './trace/Trace.jsx';
 export { useStepStates } from './hooks/useStepStates.js';
-export { STEP_ICONS, SVG_PROPS } from './icons/StepIcons.jsx';
+export { STEP_ICONS, CHECK_ICON, SVG_PROPS } from './icons/StepIcons.jsx';
 
 export const VERSION = '0.0.0';

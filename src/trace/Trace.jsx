@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useStepStates } from '../hooks/useStepStates.js';
 import { Pill } from '../pill/Pill.jsx';
-import { STEP_ICONS } from '../icons/StepIcons.jsx';
+import { STEP_ICONS, CHECK_ICON } from '../icons/StepIcons.jsx';
 import './Trace.css';
 
 /**
@@ -89,15 +89,19 @@ function LiveTrace({ substrate, manifests }) {
 function TraceRow({ states, manifests }) {
   return (
     <ol className="trace" aria-label="Service step progress">
-      {SERVICE_STEPS.map((stepId) => (
-        <Pill
-          key={stepId}
-          stepId={stepId}
-          state={states.get(stepId)}
-          manifest={manifests[stepId]}
-          icon={STEP_ICONS[stepId]}
-        />
-      ))}
+      {SERVICE_STEPS.map((stepId) => {
+        const state = states.get(stepId);
+        const icon = state === 'complete' ? CHECK_ICON : STEP_ICONS[stepId];
+        return (
+          <Pill
+            key={stepId}
+            stepId={stepId}
+            state={state}
+            manifest={manifests[stepId]}
+            icon={icon}
+          />
+        );
+      })}
     </ol>
   );
 }
