@@ -130,3 +130,9 @@ h1 {
   color: var(--color-amber-deep);
   font-size: 0.875rem;
 }
+
+.mode-status {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}

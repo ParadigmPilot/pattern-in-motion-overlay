@@ -1,0 +1,78 @@
+/* ============================================================
+   Toggle — Pattern-in-Motion overlay
+   Accessible Manual / Automatic ("Step") mode switch.
+
+   APG Switch pattern (role="switch" + aria-checked). State is
+   shown by thumb position + visible label, never color alone
+   (accessibility.md RULE-01). Focus ring >= 2px (RULE-02).
+
+   Tokens consumed (see ../tokens.css):
+     --space-3, --radius-md, --transition-base,
+     --font-body, --font-size-sm, --font-weight-semibold,
+     --color-charcoal, --color-stone, --color-amber
+
+   Note: the thumb uses literal #fff — no surface/white brand
+   token exists yet. Consistent with the standing token-vocab
+   concern (Cycle 310.6 / 312.7); flagged, not invented.
+   ============================================================ */
+
+.pim-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-charcoal);
+  cursor: pointer;
+}
+
+.pim-toggle__track {
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 2.25rem;
+  height: 1.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--color-stone);
+  transition: background-color var(--transition-base);
+}
+
+.pim-toggle__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: #fff;
+  transform: translateY(-50%);
+  transition: transform var(--transition-base);
+}
+
+.pim-toggle.is-on .pim-toggle__track {
+  background-color: var(--color-amber);
+}
+
+.pim-toggle.is-on .pim-toggle__thumb {
+  transform: translate(1rem, -50%);
+}
+
+.pim-toggle__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.pim-toggle:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pim-toggle__track,
+  .pim-toggle__thumb {
+    transition: none;
+  }
+}

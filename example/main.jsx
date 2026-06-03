@@ -1,11 +1,14 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { createMockSubstrate, SPEED_PRESETS, SERVICE_STEPS } from './mock-substrate.js';
-import { Pin, Trace } from '../src/index.js';
+import { Pin, Trace, Toggle, createModeGate } from '../src/index.js';
 import '../src/tokens.css';
 
 const SPEED_STORAGE_KEY = 'pim-overlay-speed';
 const SPEED_NAMES = ['slow', 'default', 'fast'];
+
+const MODE_STORAGE_KEY = 'pim-overlay-mode';
+const MODE_NAMES = ['manual', 'automatic'];
 
 function loadSavedSpeed() {
   try {
@@ -25,40 +28,99 @@ function saveSpeed(name) {
   }
 }
 
+// Mode persistence mirrors the speed-preset recipe. Absent / invalid entry ->
+// 'manual' (D-WS2-12: Manual is the first-time-visitor default).
+function loadSavedMode() {
+  try {
+    const saved = localStorage.getItem(MODE_STORAGE_KEY);
+    if (saved && MODE_NAMES.includes(saved)) return saved;
+  } catch {
+    // localStorage unavailable; fall through.
+  }
+  return 'manual';
+}
+
+function saveMode(name) {
+  try {
+    localStorage.setItem(MODE_STORAGE_KEY, name);
+  } catch {
+    // localStorage unavailable; silently skip.
+  }
+}
+
 function ExampleHarness() {
   const [events, setEvents] = useState([]);
-  const [substrate] = useState(() => createMockSubstrate());
+  // Wrap the mock substrate in a mode gate. Pin, Trace, and the event log all
+  // subscribe to the gate, so Manual buffering applies uniformly.
+  const [gate] = useState(() => createModeGate(createMockSubstrate(), loadSavedMode()));
   const [speedName, setSpeedName] = useState(loadSavedSpeed);
-  const [hasRun, setHasRun] = useState(false);
+  const [stepOn, setStepOn] = useState(() => gate.getMode() === 'manual');
+  const [started, setStarted] = useState(false);
+  // `playing` is true only while an automatic playback is actively running
+  // (a fresh auto turn, or a Send-driven drain of a partly-stepped turn).
+  // Send is disabled only then — never while automatic is merely armed.
+  const [playing, setPlaying] = useState(false);
   // Host-owned turn model: finished turns persist as frozen state Maps;
   // activeTurnKey remounts the live (uncontrolled) Trace on a turn boundary.
   const [finishedTurns, setFinishedTurns] = useState([]);
   const [activeTurnKey, setActiveTurnKey] = useState(0);
 
   useEffect(() => {
-    const unsubscribe = substrate.subscribe((event) => {
+    const unsubscribe = gate.subscribe((event) => {
       setEvents((prev) => [...prev, event]);
     });
     return unsubscribe;
-  }, [substrate]);
+  }, [gate]);
 
-  function runTurn() {
+  const completedCount = events.filter((e) => e.type === 'step_ended').length;
+  const turnComplete = started && completedCount >= SERVICE_STEPS.length;
+
+  // A finished turn (or an aborted playback) is no longer playing.
+  useEffect(() => {
+    if (turnComplete) setPlaying(false);
+  }, [turnComplete]);
+
+  // Start a fresh turn per the current mode. The mock emits synchronously at
+  // duration 0, so in Step mode the whole turn is buffered immediately and we
+  // reveal step 1 on this same press (no dead first Send). In auto, the
+  // substrate timer plays the turn live.
+  function startFreshTurn() {
+    gate.reset();
     setEvents([]);
-    setHasRun(true);
-    substrate.runScriptedTurn(SPEED_PRESETS[speedName]);
+    setStarted(true);
+    if (stepOn) {
+      gate.runScriptedTurn(0);
+      gate.advance();
+    } else {
+      setPlaying(true);
+      gate.runScriptedTurn(SPEED_PRESETS[speedName]);
+    }
   }
 
-  // Turn boundary (host-owned — the substrate emits no turn-end event).
-  // Archive the just-finished turn as an all-complete frozen Map, then
-  // remount a fresh active Trace.
-  function newTurn() {
-    setFinishedTurns((prev) => [
-      ...prev,
-      new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
-    ]);
-    setActiveTurnKey((key) => key + 1);
-    setEvents([]);
-    setHasRun(false);
+  // Single action. Send = start / advance / play-remaining / next-turn, by phase.
+  function send() {
+    if (turnComplete) {
+      // Fold "New turn" into Send: archive the finished turn, then start fresh.
+      setFinishedTurns((prev) => [
+        ...prev,
+        new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
+      ]);
+      setActiveTurnKey((key) => key + 1);
+      startFreshTurn();
+      return;
+    }
+    if (!started) {
+      startFreshTurn();
+      return;
+    }
+    if (stepOn) {
+      gate.advance();
+      return;
+    }
+    // Step off, mid-turn: automatic is armed and waiting — Send plays the
+    // remaining buffer out on the speed timeline.
+    setPlaying(true);
+    gate.playRemaining(SPEED_PRESETS[speedName]);
   }
 
   function selectSpeed(name) {
@@ -66,44 +128,60 @@ function ExampleHarness() {
     saveSpeed(name);
   }
 
+  // The toggle sets the mode and nothing else. Flipping ON halts any running
+  // playback (the gate aborts on manual) and re-enables Send for stepping.
+  function toggleStep(next) {
+    setStepOn(next);
+    gate.setMode(next ? 'manual' : 'automatic');
+    saveMode(next ? 'manual' : 'automatic');
+    if (next) setPlaying(false);
+  }
+
   return (
     <div>
       <div className="controls">
-        <button className="run-button" onClick={runTurn}>Run a scripted turn</button>
-        <button className="new-turn-button" onClick={newTurn} disabled={!hasRun}>New turn</button>
-        <div className="speed-control" role="group" aria-label="Step speed">
-          {SPEED_NAMES.map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={`speed-button ${speedName === name ? 'is-active' : ''}`}
-              onClick={() => selectSpeed(name)}
-              aria-pressed={speedName === name}
-            >
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </button>
-          ))}
-        </div>
+        <button className="run-button" onClick={send} disabled={playing}>Send</button>
+        <Toggle checked={stepOn} onChange={toggleStep} label="Step" />
+        {!stepOn && (
+          <div className="speed-control" role="group" aria-label="Step speed">
+            {SPEED_NAMES.map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={`speed-button ${speedName === name ? 'is-active' : ''}`}
+                onClick={() => selectSpeed(name)}
+                aria-pressed={speedName === name}
+              >
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      {!hasRun && (
+      <div className="mode-status" role="status" aria-live="polite">
+        {stepOn
+          ? 'Step mode on — each Send reveals the next step. Switch off, then Send, to finish automatically.'
+          : 'Step mode off — Send plays the whole turn.'}
+      </div>
+      {!started && (
         <div className="run-hint" role="note">
-          Click <strong>Run a scripted turn</strong> to see the Pin react.
+          Click <strong>Send</strong> to {stepOn ? 'walk the turn step by step.' : 'play a scripted turn.'}
         </div>
       )}
       <section className="pin-mount">
         <h2>Pin renderer</h2>
-        <Pin substrate={substrate} />
+        <Pin substrate={gate} />
       </section>
       <section className="trace-mount">
         <h2>Trace renderer</h2>
         {/* Chat-history column (D-WS2-1): finished turns persist as controlled
-            Traces, stacked oldest→newest; the active turn renders last as an
+            Traces, stacked oldest->newest; the active turn renders last as an
             uncontrolled Trace. Inline, co-located — no portal, no fixed panel. */}
         <div className="chat-history">
           {finishedTurns.map((frozen, i) => (
-            <Trace key={`finished-${i}`} substrate={substrate} states={frozen} />
+            <Trace key={`finished-${i}`} substrate={gate} states={frozen} />
           ))}
-          <Trace key={activeTurnKey} substrate={substrate} />
+          <Trace key={activeTurnKey} substrate={gate} />
         </div>
       </section>
       <section className="event-log-mount">
