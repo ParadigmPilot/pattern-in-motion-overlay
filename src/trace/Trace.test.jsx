@@ -223,4 +223,29 @@ describe('Trace renderer scaffold', () => {
       expect(slot.querySelector('svg')).not.toBeNull();
     });
   });
+
+  it('renders CHECK_ICON in complete-state pills and STEP_ICONS in non-complete pills', () => {
+    const substrate = createTestSubstrate();
+    const mixed = new Map([
+      ['take_the_order',  'complete'],
+      ['brief_the_chef',  'complete'],
+      ['plate_the_dish',  'active'],
+      ['read_the_ticket', 'queued'],
+      ['serve_by_type',   'queued'],
+      ['stock_the_pantry','queued'],
+    ]);
+    const { container } = render(<Trace substrate={substrate} states={mixed} />);
+
+    // Each pill renders exactly one polyline (CHECK_ICON has one polyline; STEP_ICONS use other primitives).
+    const completed = container.querySelector('[data-step-id="take_the_order"]');
+    expect(completed.querySelector('.pill-icon svg polyline')).not.toBeNull();
+
+    const active = container.querySelector('[data-step-id="plate_the_dish"]');
+    expect(active.querySelector('.pill-icon svg polyline')).toBeNull();
+    expect(active.querySelector('.pill-icon svg')).not.toBeNull();
+
+    const queued = container.querySelector('[data-step-id="read_the_ticket"]');
+    expect(queued.querySelector('.pill-icon svg polyline')).toBeNull();
+    expect(queued.querySelector('.pill-icon svg')).not.toBeNull();
+  });
 });
