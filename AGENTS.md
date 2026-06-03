@@ -116,6 +116,7 @@ export function MyTrace({ substrate }) {
 import { Pill, useStepStates, STEP_ICONS } from '@paradigmpilot/pattern-in-motion-overlay';
 
 // ... inside your custom container:
+<Pill stepId={stepId} state={states.get(stepId)} icon={STEP_ICONS[stepId]} />
 
 ```
 
