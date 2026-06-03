@@ -70,6 +70,25 @@ h1 {
   background: #374151;
 }
 
+.new-turn-button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  color: #1f2937;
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.new-turn-button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.new-turn-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .speed-control {
   display: inline-flex;
   border: 1px solid #d1d5db;
