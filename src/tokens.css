@@ -39,6 +39,7 @@
   /* ---------- SPACING ---------- */
   --space-3: 0.75rem;  /* 12px */
   --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px — between-section separator; mirrors brand-canonical modular spacing (verify against restaurant-pattern-site/src/styles/tokens.css when palette next ships) */
 
   /* ---------- RADII ---------- */
   --radius-md: 0.5rem;  /* 8px */

@@ -19,3 +19,11 @@
   margin: 0;
   list-style: none;
 }
+
+/* Between-turn separator: when multiple Traces stack as siblings in a
+   chat-history column, give adjacent Traces vertical breathing room.
+   The adjacent-sibling combinator (+) applies margin-top only between
+   Traces — not above the first, not below the last. */
+.trace + .trace {
+  margin-top: var(--space-5);
+}
