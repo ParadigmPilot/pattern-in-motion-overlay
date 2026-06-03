@@ -126,6 +126,16 @@ export function createMockSubstrate() {
    * step_started immediately, then step_ended after stepDurationMs.
    */
   function runScriptedTurn(stepDurationMs = DEFAULT_STEP_DURATION_MS) {
+    // Manual mode loads the whole turn at once (duration 0): emit
+    // synchronously so the gate buffers every step before the first Advance,
+    // and the harness can reveal step 1 on the same Send press.
+    if (stepDurationMs === 0) {
+      for (const stepId of SERVICE_STEPS) {
+        emit({ type: 'step_started', stepId, timestamp: Date.now() });
+        emit({ type: 'step_ended',   stepId, timestamp: Date.now() });
+      }
+      return;
+    }
     let delay = 0;
     for (const stepId of SERVICE_STEPS) {
       setTimeout(() => emit({ type: 'step_started', stepId, timestamp: Date.now() }), delay);

@@ -10,11 +10,6 @@ const SPEED_NAMES = ['slow', 'default', 'fast'];
 const MODE_STORAGE_KEY = 'pim-overlay-mode';
 const MODE_NAMES = ['manual', 'automatic'];
 
-// Each Service step fires step_started + step_ended, so a full turn delivers
-// exactly 2 x SERVICE_STEPS.length events. Used to detect turn completion in
-// the harness (the substrate emits no turn-end event).
-const TOTAL_TURN_EVENTS = SERVICE_STEPS.length * 2;
-
 function loadSavedSpeed() {
   try {
     const saved = localStorage.getItem(SPEED_STORAGE_KEY);
@@ -33,8 +28,8 @@ function saveSpeed(name) {
   }
 }
 
-// Mode persistence mirrors the speed-preset recipe above. Absent / invalid
-// entry -> 'manual' (D-WS2-12: Manual is the first-time-visitor default).
+// Mode persistence mirrors the speed-preset recipe. Absent / invalid entry ->
+// 'manual' (D-WS2-12: Manual is the first-time-visitor default).
 function loadSavedMode() {
   try {
     const saved = localStorage.getItem(MODE_STORAGE_KEY);
@@ -60,7 +55,7 @@ function ExampleHarness() {
   const [gate] = useState(() => createModeGate(createMockSubstrate(), loadSavedMode()));
   const [speedName, setSpeedName] = useState(loadSavedSpeed);
   const [stepOn, setStepOn] = useState(() => gate.getMode() === 'manual');
-  const [hasRun, setHasRun] = useState(false);
+  const [started, setStarted] = useState(false);
   // Host-owned turn model: finished turns persist as frozen state Maps;
   // activeTurnKey remounts the live (uncontrolled) Trace on a turn boundary.
   const [finishedTurns, setFinishedTurns] = useState([]);
@@ -73,33 +68,45 @@ function ExampleHarness() {
     return unsubscribe;
   }, [gate]);
 
-  // Send = run a turn. Automatic plays on the speed-preset timeline; Manual
-  // loads the whole turn into the gate buffer (duration 0) so the visitor
-  // reveals it step-by-step via Advance.
-  function runTurn() {
+  const completedCount = events.filter((e) => e.type === 'step_ended').length;
+  const turnComplete = started && completedCount >= SERVICE_STEPS.length;
+  // Send is only inert while a turn plays itself automatically.
+  const autoPlaying = started && !stepOn && !turnComplete;
+
+  // Start a fresh turn per the current mode. The mock emits synchronously at
+  // duration 0, so in Step mode the whole turn is buffered immediately and we
+  // reveal step 1 on this same press (no dead first Send).
+  function startFreshTurn() {
     gate.reset();
     setEvents([]);
-    setHasRun(true);
+    setStarted(true);
     gate.runScriptedTurn(stepOn ? 0 : SPEED_PRESETS[speedName]);
+    if (stepOn) {
+      gate.advance();
+    }
   }
 
-  // Manual advance: release one buffered event to all subscribers.
-  function advanceStep() {
-    gate.advance();
-  }
-
-  // Turn boundary (host-owned — the substrate emits no turn-end event).
-  // Drop any unrevealed buffered events, archive the just-finished turn as an
-  // all-complete frozen Map, then remount a fresh active Trace.
-  function newTurn() {
-    gate.reset();
-    setFinishedTurns((prev) => [
-      ...prev,
-      new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
-    ]);
-    setActiveTurnKey((key) => key + 1);
-    setEvents([]);
-    setHasRun(false);
+  // Single action. Send = start / advance / next-turn, by phase.
+  function send() {
+    if (turnComplete) {
+      // Fold "New turn" into Send: archive the finished turn to chat history,
+      // then start the next one.
+      setFinishedTurns((prev) => [
+        ...prev,
+        new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
+      ]);
+      setActiveTurnKey((key) => key + 1);
+      startFreshTurn();
+      return;
+    }
+    if (!started) {
+      startFreshTurn();
+      return;
+    }
+    if (stepOn) {
+      gate.advance();
+    }
+    // Auto-playing: Send is disabled, so there is no path here.
   }
 
   function selectSpeed(name) {
@@ -107,48 +114,45 @@ function ExampleHarness() {
     saveSpeed(name);
   }
 
+  // Flipping Step OFF mid-turn replays the buffer on the speed timeline
+  // (finish-in-auto). Flipping ON halts any auto-drain (the gate aborts its
+  // replay when mode is manual).
   function toggleStep(next) {
     setStepOn(next);
     const mode = next ? 'manual' : 'automatic';
-    gate.setMode(mode);
+    gate.setMode(mode, next ? 0 : SPEED_PRESETS[speedName]);
     saveMode(mode);
   }
-
-  const turnComplete = events.length >= TOTAL_TURN_EVENTS;
-  const showAdvance = stepOn && hasRun && !turnComplete;
 
   return (
     <div>
       <div className="controls">
-        <button className="run-button" onClick={runTurn} disabled={hasRun && !turnComplete}>Send</button>
-        {showAdvance && (
-          <button className="advance-button" onClick={advanceStep}>Advance step</button>
-        )}
-        <button className="new-turn-button" onClick={newTurn} disabled={!hasRun}>New turn</button>
+        <button className="run-button" onClick={send} disabled={autoPlaying}>Send</button>
         <Toggle checked={stepOn} onChange={toggleStep} label="Step" />
-        <div className="speed-control" role="group" aria-label="Step speed">
-          {SPEED_NAMES.map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={`speed-button ${speedName === name ? 'is-active' : ''}`}
-              onClick={() => selectSpeed(name)}
-              aria-pressed={speedName === name}
-              disabled={stepOn}
-            >
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </button>
-          ))}
-        </div>
+        {!stepOn && (
+          <div className="speed-control" role="group" aria-label="Step speed">
+            {SPEED_NAMES.map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={`speed-button ${speedName === name ? 'is-active' : ''}`}
+                onClick={() => selectSpeed(name)}
+                aria-pressed={speedName === name}
+              >
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="mode-status" role="status" aria-live="polite">
         {stepOn
-          ? 'Step mode on — Send loads the turn; Advance reveals each step.'
-          : 'Step mode off — Send plays the turn automatically.'}
+          ? 'Step mode on — each Send reveals the next step. Switch off to finish automatically.'
+          : 'Step mode off — Send plays the whole turn.'}
       </div>
-      {!hasRun && (
+      {!started && (
         <div className="run-hint" role="note">
-          Click <strong>Send</strong> to {stepOn ? 'load a turn, then Advance through it.' : 'play a scripted turn.'}
+          Click <strong>Send</strong> to {stepOn ? 'walk the turn step by step.' : 'play a scripted turn.'}
         </div>
       )}
       <section className="pin-mount">
