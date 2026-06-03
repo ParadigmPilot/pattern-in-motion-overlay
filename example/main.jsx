@@ -56,6 +56,10 @@ function ExampleHarness() {
   const [speedName, setSpeedName] = useState(loadSavedSpeed);
   const [stepOn, setStepOn] = useState(() => gate.getMode() === 'manual');
   const [started, setStarted] = useState(false);
+  // `playing` is true only while an automatic playback is actively running
+  // (a fresh auto turn, or a Send-driven drain of a partly-stepped turn).
+  // Send is disabled only then — never while automatic is merely armed.
+  const [playing, setPlaying] = useState(false);
   // Host-owned turn model: finished turns persist as frozen state Maps;
   // activeTurnKey remounts the live (uncontrolled) Trace on a turn boundary.
   const [finishedTurns, setFinishedTurns] = useState([]);
@@ -70,27 +74,33 @@ function ExampleHarness() {
 
   const completedCount = events.filter((e) => e.type === 'step_ended').length;
   const turnComplete = started && completedCount >= SERVICE_STEPS.length;
-  // Send is only inert while a turn plays itself automatically.
-  const autoPlaying = started && !stepOn && !turnComplete;
+
+  // A finished turn (or an aborted playback) is no longer playing.
+  useEffect(() => {
+    if (turnComplete) setPlaying(false);
+  }, [turnComplete]);
 
   // Start a fresh turn per the current mode. The mock emits synchronously at
   // duration 0, so in Step mode the whole turn is buffered immediately and we
-  // reveal step 1 on this same press (no dead first Send).
+  // reveal step 1 on this same press (no dead first Send). In auto, the
+  // substrate timer plays the turn live.
   function startFreshTurn() {
     gate.reset();
     setEvents([]);
     setStarted(true);
-    gate.runScriptedTurn(stepOn ? 0 : SPEED_PRESETS[speedName]);
     if (stepOn) {
+      gate.runScriptedTurn(0);
       gate.advance();
+    } else {
+      setPlaying(true);
+      gate.runScriptedTurn(SPEED_PRESETS[speedName]);
     }
   }
 
-  // Single action. Send = start / advance / next-turn, by phase.
+  // Single action. Send = start / advance / play-remaining / next-turn, by phase.
   function send() {
     if (turnComplete) {
-      // Fold "New turn" into Send: archive the finished turn to chat history,
-      // then start the next one.
+      // Fold "New turn" into Send: archive the finished turn, then start fresh.
       setFinishedTurns((prev) => [
         ...prev,
         new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
@@ -105,8 +115,12 @@ function ExampleHarness() {
     }
     if (stepOn) {
       gate.advance();
+      return;
     }
-    // Auto-playing: Send is disabled, so there is no path here.
+    // Step off, mid-turn: automatic is armed and waiting — Send plays the
+    // remaining buffer out on the speed timeline.
+    setPlaying(true);
+    gate.playRemaining(SPEED_PRESETS[speedName]);
   }
 
   function selectSpeed(name) {
@@ -114,20 +128,19 @@ function ExampleHarness() {
     saveSpeed(name);
   }
 
-  // Flipping Step OFF mid-turn replays the buffer on the speed timeline
-  // (finish-in-auto). Flipping ON halts any auto-drain (the gate aborts its
-  // replay when mode is manual).
+  // The toggle sets the mode and nothing else. Flipping ON halts any running
+  // playback (the gate aborts on manual) and re-enables Send for stepping.
   function toggleStep(next) {
     setStepOn(next);
-    const mode = next ? 'manual' : 'automatic';
-    gate.setMode(mode, next ? 0 : SPEED_PRESETS[speedName]);
-    saveMode(mode);
+    gate.setMode(next ? 'manual' : 'automatic');
+    saveMode(next ? 'manual' : 'automatic');
+    if (next) setPlaying(false);
   }
 
   return (
     <div>
       <div className="controls">
-        <button className="run-button" onClick={send} disabled={autoPlaying}>Send</button>
+        <button className="run-button" onClick={send} disabled={playing}>Send</button>
         <Toggle checked={stepOn} onChange={toggleStep} label="Step" />
         {!stepOn && (
           <div className="speed-control" role="group" aria-label="Step speed">
@@ -147,7 +160,7 @@ function ExampleHarness() {
       </div>
       <div className="mode-status" role="status" aria-live="polite">
         {stepOn
-          ? 'Step mode on — each Send reveals the next step. Switch off to finish automatically.'
+          ? 'Step mode on — each Send reveals the next step. Switch off, then Send, to finish automatically.'
           : 'Step mode off — Send plays the whole turn.'}
       </div>
       {!started && (

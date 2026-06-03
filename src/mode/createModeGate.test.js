@@ -62,6 +62,38 @@ describe('createModeGate', () => {
     expect(gate.pendingCount()).toBe(6);
   });
 
+  describe('setMode (mode only — never delivers)', () => {
+    it('switching manual to automatic does not deliver the backlog', () => {
+      const sub = createFakeSubstrate();
+      const gate = createModeGate(sub, 'manual');
+      const seen = [];
+      gate.subscribe((e) => seen.push(e));
+      sub.emitTurn(STEPS);
+      gate.setMode('automatic');
+      expect(seen).toHaveLength(0);
+      expect(gate.pendingCount()).toBe(6);
+      expect(gate.getMode()).toBe('automatic');
+    });
+
+    it('after switching to automatic, new upstream events forward live', () => {
+      const sub = createFakeSubstrate();
+      const gate = createModeGate(sub, 'manual');
+      const seen = [];
+      gate.subscribe((e) => seen.push(e));
+      sub.emit({ type: 'step_started', stepId: 's1', timestamp: 0 }); // buffered
+      gate.setMode('automatic');
+      sub.emit({ type: 'step_started', stepId: 's2', timestamp: 0 }); // live
+      expect(seen.map(label)).toEqual(['s2:step_started']);
+      expect(gate.pendingCount()).toBe(1); // s1 still buffered
+    });
+
+    it('ignores an invalid setMode value', () => {
+      const gate = createModeGate(createFakeSubstrate(), 'manual');
+      gate.setMode('nonsense');
+      expect(gate.getMode()).toBe('manual');
+    });
+  });
+
   describe('step-level advance', () => {
     it('first advance reveals only the first step_started', () => {
       const sub = createFakeSubstrate();
@@ -90,10 +122,10 @@ describe('createModeGate', () => {
       const seen = [];
       gate.subscribe((e) => seen.push(e));
       sub.emitTurn(STEPS);
-      expect(gate.advance()).toBe(true); // s1_started
-      expect(gate.advance()).toBe(true); // s1_ended, s2_started
-      expect(gate.advance()).toBe(true); // s2_ended, s3_started
-      expect(gate.advance()).toBe(true); // s3_ended (drain)
+      gate.advance();
+      gate.advance();
+      gate.advance();
+      expect(gate.advance()).toBe(true);
       expect(gate.pendingCount()).toBe(0);
       expect(seen).toHaveLength(6);
       expect(label(seen[5])).toBe('s3:step_ended');
@@ -111,61 +143,80 @@ describe('createModeGate', () => {
     });
   });
 
-  describe('finish-in-auto (timed flush)', () => {
+  describe('playRemaining (Send-driven auto playback)', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());
 
-    it('replays the buffered backlog one step per interval on the timeline', () => {
+    it('plays the remaining backlog one step per interval after a partial step', () => {
       const sub = createFakeSubstrate();
       const gate = createModeGate(sub, 'manual');
       const seen = [];
       gate.subscribe((e) => seen.push(e));
       sub.emitTurn(STEPS);
       gate.advance(); // reveal s1
+      gate.setMode('automatic'); // arm — moves nothing
       expect(seen).toHaveLength(1);
-      gate.setMode('automatic', 100);
-      expect(seen).toHaveLength(1); // paced — nothing released yet
+      gate.playRemaining(100); // Send drives playback
+      expect(seen).toHaveLength(1); // paced
       vi.advanceTimersByTime(100);
       expect(seen.map(label)).toEqual(['s1:step_started', 's1:step_ended', 's2:step_started']);
       vi.advanceTimersByTime(100);
-      expect(seen).toHaveLength(5); // + s2_ended, s3_started
+      expect(seen).toHaveLength(5);
       vi.advanceTimersByTime(100);
-      expect(seen).toHaveLength(6); // + s3_ended (drain)
+      expect(seen).toHaveLength(6);
       expect(gate.pendingCount()).toBe(0);
     });
 
-    it('flushes synchronously when no replay interval is given', () => {
+    it('drains synchronously when the interval is non-positive', () => {
       const sub = createFakeSubstrate();
       const gate = createModeGate(sub, 'manual');
       const seen = [];
       gate.subscribe((e) => seen.push(e));
       sub.emitTurn(STEPS);
       gate.setMode('automatic');
+      gate.playRemaining(0);
       expect(seen).toHaveLength(6);
       expect(gate.pendingCount()).toBe(0);
     });
 
-    it('aborts the timed replay if mode flips back to manual', () => {
+    it('is a no-op in manual mode', () => {
+      const sub = createFakeSubstrate();
+      const gate = createModeGate(sub, 'manual');
+      const seen = [];
+      gate.subscribe((e) => seen.push(e));
+      sub.emitTurn(STEPS);
+      gate.playRemaining(100);
+      vi.advanceTimersByTime(1000);
+      expect(seen).toHaveLength(0);
+      expect(gate.pendingCount()).toBe(6);
+    });
+
+    it('is a no-op when the queue is empty', () => {
+      const sub = createFakeSubstrate();
+      const gate = createModeGate(sub, 'automatic');
+      const seen = [];
+      gate.subscribe((e) => seen.push(e));
+      gate.playRemaining(100);
+      vi.advanceTimersByTime(1000);
+      expect(seen).toHaveLength(0);
+    });
+
+    it('aborts the playback if mode flips back to manual', () => {
       const sub = createFakeSubstrate();
       const gate = createModeGate(sub, 'manual');
       const seen = [];
       gate.subscribe((e) => seen.push(e));
       sub.emitTurn(STEPS);
       gate.advance(); // s1
-      gate.setMode('automatic', 100);
-      vi.advanceTimersByTime(100); // one step group released
+      gate.setMode('automatic');
+      gate.playRemaining(100);
+      vi.advanceTimersByTime(100); // one step group
       const afterOne = seen.length;
-      gate.setMode('manual', 0); // flip back -> halt drain
+      gate.setMode('manual'); // flip back -> halt
       vi.advanceTimersByTime(1000);
       expect(seen.length).toBe(afterOne);
       expect(gate.pendingCount()).toBeGreaterThan(0);
     });
-  });
-
-  it('ignores an invalid setMode value', () => {
-    const gate = createModeGate(createFakeSubstrate(), 'manual');
-    gate.setMode('nonsense');
-    expect(gate.getMode()).toBe('manual');
   });
 
   it('passes loadManifest and runScriptedTurn through to the substrate', () => {

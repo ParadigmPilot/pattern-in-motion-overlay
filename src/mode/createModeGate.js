@@ -9,19 +9,17 @@
  *
  * Why a gate (Session 313.7 decision, Option B): the substrate emits on its
  * own timeline and cannot be paused. In Manual mode the events have already
- * happened — pacing their *reveal* is a renderer-side concern, not a substrate
- * pause. The gate buffers events in Manual and releases them one *step* at a
- * time via `advance()`; in Automatic it forwards them immediately.
+ * happened — pacing their *reveal* is a renderer-side concern. The gate
+ * buffers events in Manual and releases them one *step* at a time via
+ * `advance()`; in Automatic it forwards them immediately.
  *
- * Release granularity is one Service step, not one event. A step boundary is
- * "up to and including the next step_started"; the first advance reveals the
- * first step_started, each later advance completes the current step and starts
- * the next, and the final advance drains the trailing step_ended.
- *
- * Finish-in-auto: switching Manual -> Automatic replays the buffered backlog.
- * With a positive `replayIntervalMs` it replays one step per interval on the
- * speed timeline (the turn "plays out"); with 0 it flushes synchronously. A
- * timed replay aborts if the mode flips back to Manual.
+ * Release granularity is one Service step ("up to and including the next
+ * step_started"). `setMode` only sets the mode — it never delivers buffered
+ * events. Playing a buffered backlog out automatically is an explicit action:
+ * the host calls `playRemaining(intervalMs)` (typically from a Send press),
+ * which replays the backlog one step per interval and aborts if the mode
+ * returns to Manual. Switching Manual -> Automatic alone moves nothing; new
+ * upstream events forward live and the existing backlog waits for a play.
  *
  * Mode is NOT persisted here. Persistence (localStorage) is the host's
  * concern; see example/main.jsx for the reference recipe.
@@ -36,9 +34,10 @@
  *   subscribe: (cb: Function) => () => void,
  *   loadManifest: Function,
  *   runScriptedTurn: Function,
- *   setMode: (mode: 'manual' | 'automatic', replayIntervalMs?: number) => void,
+ *   setMode: (mode: 'manual' | 'automatic') => void,
  *   getMode: () => 'manual' | 'automatic',
  *   advance: () => boolean,
+ *   playRemaining: (intervalMs?: number) => void,
  *   pendingCount: () => number,
  *   reset: () => void,
  *   teardown: () => void
@@ -86,25 +85,9 @@ export function createModeGate(substrate, initialMode = 'manual') {
     return () => downstream.delete(callback);
   }
 
-  function setMode(next, replayIntervalMs = 0) {
+  function setMode(next) {
     if (next !== 'manual' && next !== 'automatic') return;
-    const previous = mode;
     mode = next;
-    if (previous === 'manual' && next === 'automatic' && queue.length > 0) {
-      if (replayIntervalMs > 0) {
-        // Finish-in-auto: replay the backlog one step per interval, aborting
-        // if the visitor flips Step back on (mode returns to manual).
-        const tick = () => {
-          if (mode !== 'automatic') return;
-          if (queue.length === 0) return;
-          releaseStep();
-          if (queue.length > 0) setTimeout(tick, replayIntervalMs);
-        };
-        setTimeout(tick, replayIntervalMs);
-      } else {
-        while (queue.length > 0) deliver(queue.shift());
-      }
-    }
   }
 
   function getMode() {
@@ -114,6 +97,26 @@ export function createModeGate(substrate, initialMode = 'manual') {
   function advance() {
     if (mode !== 'manual') return false;
     return releaseStep();
+  }
+
+  // Play the buffered backlog out automatically, one step per interval, on the
+  // speed timeline. No-op unless in automatic mode with a backlog. With a
+  // non-positive interval the backlog drains synchronously. A timed playback
+  // aborts if the mode returns to manual (visitor flips Step back on).
+  function playRemaining(intervalMs = 0) {
+    if (mode !== 'automatic') return;
+    if (queue.length === 0) return;
+    if (!(intervalMs > 0)) {
+      while (queue.length > 0) deliver(queue.shift());
+      return;
+    }
+    const tick = () => {
+      if (mode !== 'automatic') return;
+      if (queue.length === 0) return;
+      releaseStep();
+      if (queue.length > 0) setTimeout(tick, intervalMs);
+    };
+    setTimeout(tick, intervalMs);
   }
 
   function pendingCount() {
@@ -137,6 +140,7 @@ export function createModeGate(substrate, initialMode = 'manual') {
     setMode,
     getMode,
     advance,
+    playRemaining,
     pendingCount,
     reset,
     teardown,
