@@ -1,0 +1,84 @@
+/* ============================================================
+   ManualOverlay (Component #6) — Pattern-in-Motion overlay
+   Assistant-area teaching panel for the active Service step.
+
+   Structural skeleton only (WO-314.3b scaffold): lays out the six
+   per-state teaching elements in reading order plus the advance
+   button. Token-vocab refinement, animation, and the Step-05 /
+   #7 seams are deferred to later WOs.
+
+   Tokens consumed (see ../tokens.css):
+     --space-3, --space-4
+     --color-charcoal, --color-stone, --color-amber, --color-amber-deep
+     --font-size-base, --font-size-sm
+     --font-weight-regular, --font-weight-semibold
+     --line-height-snug, --radius-md
+   ============================================================ */
+
+.manual-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-snug);
+}
+
+.manual-overlay-step {
+  margin: 0;
+}
+
+.manual-overlay-step-index {
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Restaurant frame is the anchor (semantic <strong> weight). */
+.manual-overlay-anchor {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Technology frame is the supporting peg. */
+.manual-overlay-peg {
+  margin: 0;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+}
+
+.manual-overlay-plain {
+  margin: 0;
+}
+
+.manual-overlay-in-code {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.manual-overlay-in-code-label {
+  color: var(--color-amber-deep);
+  font-weight: var(--font-weight-semibold);
+}
+
+.manual-overlay-just-finished,
+.manual-overlay-up-next {
+  margin: 0;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+}
+
+.manual-overlay-advance {
+  align-self: flex-start;
+  padding: var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-amber);
+  color: var(--color-amber-soft);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
