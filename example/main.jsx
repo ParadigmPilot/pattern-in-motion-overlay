@@ -10,6 +10,11 @@ const SPEED_NAMES = ['slow', 'default', 'fast'];
 const MODE_STORAGE_KEY = 'pim-overlay-mode';
 const MODE_NAMES = ['manual', 'automatic'];
 
+// Demo LLM response prose surfaced by the Step-05 overlay→prose swap. Supplied
+// by the host because the substrate is sealed to events-only (A2 contract).
+const DEMO_RESPONSE_PROSE =
+  "Thanks — I've reviewed the intake. This looks like a priority orientation & mobility referral: low-vision student, new cane-travel goals, IEP timeline active. I've drafted an evaluation request routed to the COMS queue. Review it below before you send.";
+
 function loadSavedSpeed() {
   try {
     const saved = localStorage.getItem(SPEED_STORAGE_KEY);
@@ -186,7 +191,11 @@ function ExampleHarness() {
       </section>
       <section className="overlay-mount">
         <h2>Manual-mode overlay</h2>
-        <ManualOverlay substrate={gate} onAdvance={() => gate.advance()} />
+        <ManualOverlay
+          substrate={gate}
+          responseProse={DEMO_RESPONSE_PROSE}
+          onAdvance={() => gate.advance()}
+        />
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>

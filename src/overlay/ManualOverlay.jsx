@@ -4,36 +4,41 @@ import './manual-overlay.css';
 /**
  * ManualOverlay renderer (Component #6) — the assistant-area teaching panel.
  *
- * Subscribes to the host-provided substrate's event stream (the same approach
- * Pin / Trace use; register in `useEffect`, return the unsubscribe for
- * cleanup). On `step_started`, tracks the active step and resolves its manifest
- * via `substrate.loadManifest`; on `step_ended`, clears active state when the
- * ending step matches the active one. When no Service step is active (idle —
- * the implicit `at_the_table` state per HOOK_CONTRACT), the component renders
- * nothing (`null`).
+ * Subscribes to the host-provided substrate's event stream (register in
+ * `useEffect`, return the unsubscribe for cleanup). Reconstructs the active
+ * step set from `step_started` / `step_ended` events so it can detect
+ * return-to-idle under the set-of-active-steps model (Steps 05/06 may overlap).
+ * When the active set is empty (idle — implicit `at_the_table`), the component
+ * renders nothing (`null`).
  *
- * For the active step it renders the six per-state teaching elements in reading
- * order, then a labeled advance button:
- *   1. Step indicator + `restaurant_label` (the anchor)  — "Step 02 · Brief the Chef"
- *   2. `technology_label` (the pegged term)
- *   3. `plain_english` (the explanation)
- *   4. `in_code`, visibly prefixed `IN CODE:`
- *   5. `just_finished` (continuity line — rendered as-is)
- *   6. `up_next` (what's-next preview)
- *   + an "Advance →" button that calls `onAdvance` on click.
+ * Steps 01–04: renders the six per-state teaching elements in reading order,
+ * then a labeled advance button.
  *
- * Scaffold scope (WO-314.3b): `animation_asset` is not consumed here. The
- * Step-05 overlay→prose swap, the `just_finished` first-entry blank, the #7
- * response-ready strip, and animation treatment are deferred to later WOs.
+ * Step 05 swap (D-WS2-13): on `serve_by_type` the overlay is REPLACED by the
+ * host-supplied LLM response prose (`responseProse`). The prose persists
+ * through Step 06 (`stock_the_pantry`, background) until the turn returns to
+ * idle. Prose mode carries no advance button — the teaching overlay, button
+ * included, is gone; the prose is the content.
+ *
+ * `just_finished` first-entry conditional — MOOT (recorded, no code): the
+ * manifest canon populates `just_finished` for all seven states including the
+ * idle `at_the_table` state, and #6 never renders at idle, so the
+ * "blank on first entry, populated thereafter" rule has no render site at
+ * which to bite. The pre-05 overlay always shows the canon value as-is.
+ *
+ * `animation_asset` is not consumed here (pin renderer's). The #7
+ * response-ready strip mounts adjacent to #6, never nested inside it.
  *
  * @param {Object} props
  * @param {{ subscribe: Function, loadManifest: Function }} props.substrate
- *   Host-bound substrate adapter. Must expose `subscribe(callback)` returning
- *   an unsubscribe function, and `loadManifest(stepId)` returning a frozen
- *   seven-field manifest per HOOK_CONTRACT.md.
+ *   Host-bound substrate adapter. `subscribe(callback)` returns an unsubscribe
+ *   function; `loadManifest(stepId)` returns a frozen seven-field manifest.
+ * @param {string} props.responseProse
+ *   The LLM response prose shown when the visitor reaches Step 05. Host-supplied
+ *   because the substrate is sealed to events-only (A2 contract).
  * @param {() => void} props.onAdvance
- *   Called when the advance button is clicked. The host decides what advancing
- *   means (e.g. `gate.advance()`); the overlay only signals intent.
+ *   Called when the advance button is clicked (Steps 01–04 only). The host
+ *   decides what advancing means (e.g. `gate.advance()`).
  */
 
 const SERVICE_STEPS = [
@@ -45,33 +50,73 @@ const SERVICE_STEPS = [
   'stock_the_pantry',
 ];
 
-export function ManualOverlay({ substrate, onAdvance }) {
-  const [activeStepId, setActiveStepId] = useState(null);
+const SERVE_STEP = 'serve_by_type';
+
+export function ManualOverlay({ substrate, responseProse, onAdvance }) {
+  const [activeSteps, setActiveSteps] = useState(() => new Set());
+  const [currentStepId, setCurrentStepId] = useState(null);
+  const [reachedServe, setReachedServe] = useState(false);
 
   useEffect(() => {
     const unsubscribe = substrate.subscribe((event) => {
       if (event.type === 'step_started') {
-        setActiveStepId(event.stepId);
+        setActiveSteps((prev) => new Set(prev).add(event.stepId));
+        setCurrentStepId(event.stepId);
+        if (event.stepId === SERVE_STEP) {
+          setReachedServe(true);
+        }
       } else if (event.type === 'step_ended') {
-        setActiveStepId((current) => (current === event.stepId ? null : current));
+        setActiveSteps((prev) => {
+          const next = new Set(prev);
+          next.delete(event.stepId);
+          return next;
+        });
       }
     });
     return unsubscribe;
   }, [substrate]);
 
+  // Return-to-idle: when the active set empties, reset turn-scoped state.
+  useEffect(() => {
+    if (activeSteps.size === 0) {
+      setReachedServe(false);
+      setCurrentStepId(null);
+    }
+  }, [activeSteps]);
+
   // Idle (implicit at_the_table): render nothing.
-  if (activeStepId === null) {
+  if (activeSteps.size === 0) {
     return null;
   }
 
-  const manifest = substrate.loadManifest(activeStepId);
-  const stepNumber = String(SERVICE_STEPS.indexOf(activeStepId) + 1).padStart(2, '0');
+  // Step 05 onward (D-WS2-13): overlay swaps to the LLM response prose and
+  // persists through Step 06 until return-to-idle. No advance button.
+  if (reachedServe) {
+    return (
+      <section
+        className="manual-overlay manual-overlay--prose"
+        aria-live="polite"
+        data-step-id={SERVE_STEP}
+      >
+        <p className="manual-overlay-response">{responseProse}</p>
+      </section>
+    );
+  }
+
+  // Defensive: no current step resolved yet.
+  if (currentStepId === null) {
+    return null;
+  }
+
+  // Steps 01–04: the six-element teaching overlay + advance button.
+  const manifest = substrate.loadManifest(currentStepId);
+  const stepNumber = String(SERVICE_STEPS.indexOf(currentStepId) + 1).padStart(2, '0');
 
   return (
     <section
       className="manual-overlay"
       aria-live="polite"
-      data-step-id={activeStepId}
+      data-step-id={currentStepId}
     >
       <header className="manual-overlay-step">
         <span className="manual-overlay-step-index">Step {stepNumber} ·</span>{' '}
