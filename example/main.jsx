@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { createMockSubstrate, SPEED_PRESETS, SERVICE_STEPS } from './mock-substrate.js';
-import { Pin, Trace, Toggle, createModeGate } from '../src/index.js';
+import { Pin, Trace, Toggle, ManualOverlay, createModeGate } from '../src/index.js';
 import '../src/tokens.css';
 
 const SPEED_STORAGE_KEY = 'pim-overlay-speed';
@@ -183,6 +183,10 @@ function ExampleHarness() {
           ))}
           <Trace key={activeTurnKey} substrate={gate} />
         </div>
+      </section>
+      <section className="overlay-mount">
+        <h2>Manual-mode overlay</h2>
+        <ManualOverlay substrate={gate} onAdvance={() => gate.advance()} />
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>

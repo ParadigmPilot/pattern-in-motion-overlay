@@ -14,7 +14,8 @@
  *   SVG_PROPS       — SVG container convention for authored icons (WO-313.6.a)
  *   Toggle          — Manual / Automatic ("Step") mode switch (WO-313.7.a — shipped)
  *   createModeGate  — buffer-and-release mode gate; Manual buffers, Automatic forwards (WO-313.7.a — shipped)
- *   Cycle 314+      — manual-mode overlay, response-ready strip, capture
+ *   ManualOverlay   — assistant-area per-state teaching panel + advance button (scaffold WO-314.3.b)
+ *   Cycle 314+      — response-ready strip, capture
  *
  * Composition guide for third-party use cases (N != 6 steps, non-Restaurant-
  * Pattern domains): import { Pill, useStepStates } and compose a custom
@@ -28,5 +29,6 @@ export { useStepStates } from './hooks/useStepStates.js';
 export { STEP_ICONS, CHECK_ICON, SVG_PROPS } from './icons/StepIcons.jsx';
 export { Toggle } from './mode/Toggle.jsx';
 export { createModeGate } from './mode/createModeGate.js';
+export { ManualOverlay } from './overlay/ManualOverlay.jsx';
 
 export const VERSION = '0.0.0';
