@@ -145,3 +145,103 @@ describe('ManualOverlay scaffold (Component #6)', () => {
     expect(onAdvance).toHaveBeenCalledTimes(1);
   });
 });
+
+const DEMO_PROSE =
+  "Thanks — I've drafted the evaluation request. Review it below before you send.";
+
+describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
+  function startStep(substrate, stepId) {
+    act(() => {
+      substrate.emit({ type: 'step_started', stepId, timestamp: Date.now() });
+    });
+  }
+
+  function endStep(substrate, stepId) {
+    act(() => {
+      substrate.emit({ type: 'step_ended', stepId, timestamp: Date.now() });
+    });
+  }
+
+  it('renders the six teaching elements + advance button before Step 05', () => {
+    const substrate = createTestSubstrate(BRIEF_MANIFEST);
+    const { container } = render(
+      <ManualOverlay
+        substrate={substrate}
+        responseProse={DEMO_PROSE}
+        onAdvance={() => {}}
+      />
+    );
+
+    startStep(substrate, 'brief_the_chef');
+
+    expect(container.querySelector('.manual-overlay-step')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-peg')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-plain')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-in-code')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-just-finished')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-up-next')).not.toBeNull();
+    expect(container.querySelector('.manual-overlay-advance')).not.toBeNull();
+    // Pre-05: not yet in prose mode.
+    expect(container.querySelector('.manual-overlay-response')).toBeNull();
+  });
+
+  it('swaps the overlay for the response prose at serve_by_type', () => {
+    const substrate = createTestSubstrate(BRIEF_MANIFEST);
+    const { container } = render(
+      <ManualOverlay
+        substrate={substrate}
+        responseProse={DEMO_PROSE}
+        onAdvance={() => {}}
+      />
+    );
+
+    startStep(substrate, 'serve_by_type');
+
+    const prose = container.querySelector('.manual-overlay-response');
+    expect(prose).not.toBeNull();
+    expect(prose.textContent).toBe(DEMO_PROSE);
+    expect(container.querySelector('.manual-overlay--prose')).not.toBeNull();
+    // The six teaching elements + advance button are gone.
+    expect(container.querySelector('.manual-overlay-step')).toBeNull();
+    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
+  });
+
+  it('persists the prose through stock_the_pantry when serve_by_type ends (overlap)', () => {
+    const substrate = createTestSubstrate(BRIEF_MANIFEST);
+    const { container } = render(
+      <ManualOverlay
+        substrate={substrate}
+        responseProse={DEMO_PROSE}
+        onAdvance={() => {}}
+      />
+    );
+
+    startStep(substrate, 'serve_by_type');
+    startStep(substrate, 'stock_the_pantry');
+    endStep(substrate, 'serve_by_type');
+
+    const prose = container.querySelector('.manual-overlay-response');
+    expect(prose).not.toBeNull();
+    expect(prose.textContent).toBe(DEMO_PROSE);
+    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
+  });
+
+  it('returns to null at idle after the prose turn completes', () => {
+    const substrate = createTestSubstrate(BRIEF_MANIFEST);
+    const { container } = render(
+      <ManualOverlay
+        substrate={substrate}
+        responseProse={DEMO_PROSE}
+        onAdvance={() => {}}
+      />
+    );
+
+    startStep(substrate, 'serve_by_type');
+    startStep(substrate, 'stock_the_pantry');
+    endStep(substrate, 'serve_by_type');
+    endStep(substrate, 'stock_the_pantry');
+
+    expect(container.querySelector('.manual-overlay')).toBeNull();
+    expect(container.firstChild).toBeNull();
+  });
+});
