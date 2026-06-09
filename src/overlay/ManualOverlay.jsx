@@ -11,14 +11,14 @@ import './manual-overlay.css';
  * When the active set is empty (idle — implicit `at_the_table`), the component
  * renders nothing (`null`).
  *
- * Steps 01–04: renders the six per-state teaching elements in reading order,
- * then a labeled advance button.
+ * Steps 01–04: renders the six per-state teaching elements in reading order.
+ * The overlay owns no advance affordance (D-WS2-23): advancing is host-owned
+ * (the host's Send control plus the trace's click-to-advance per D-WS2-9).
  *
  * Step 05 swap (D-WS2-13): on `serve_by_type` the overlay is REPLACED by the
  * host-supplied LLM response prose (`responseProse`). The prose persists
  * through Step 06 (`stock_the_pantry`, background) until the turn returns to
- * idle. Prose mode carries no advance button — the teaching overlay, button
- * included, is gone; the prose is the content.
+ * idle. The teaching overlay is gone; the prose is the content.
  *
  * `just_finished` first-entry conditional — MOOT (recorded, no code): the
  * manifest canon populates `just_finished` for all seven states including the
@@ -36,9 +36,6 @@ import './manual-overlay.css';
  * @param {string} props.responseProse
  *   The LLM response prose shown when the visitor reaches Step 05. Host-supplied
  *   because the substrate is sealed to events-only (A2 contract).
- * @param {() => void} props.onAdvance
- *   Called when the advance button is clicked (Steps 01–04 only). The host
- *   decides what advancing means (e.g. `gate.advance()`).
  */
 
 const SERVICE_STEPS = [
@@ -52,7 +49,7 @@ const SERVICE_STEPS = [
 
 const SERVE_STEP = 'serve_by_type';
 
-export function ManualOverlay({ substrate, responseProse, onAdvance }) {
+export function ManualOverlay({ substrate, responseProse }) {
   const [activeSteps, setActiveSteps] = useState(() => new Set());
   const [currentStepId, setCurrentStepId] = useState(null);
   const [reachedServe, setReachedServe] = useState(false);
@@ -130,13 +127,6 @@ export function ManualOverlay({ substrate, responseProse, onAdvance }) {
       </p>
       <p className="manual-overlay-just-finished">{manifest.just_finished}</p>
       <p className="manual-overlay-up-next">{manifest.up_next}</p>
-      <button
-        type="button"
-        className="manual-overlay-advance"
-        onClick={onAdvance}
-      >
-        Advance →
-      </button>
     </section>
   );
 }
