@@ -70,19 +70,6 @@
   font-size: var(--font-size-sm);
 }
 
-.manual-overlay-advance {
-  align-self: flex-start;
-  padding: var(--space-3);
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--color-amber);
-  color: var(--color-amber-soft);
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-}
-
 /* Step-05 prose swap (D-WS2-13): on serve_by_type the teaching overlay is
    replaced by the host-supplied LLM response prose, which persists through
    Step 06 (stock_the_pantry) until the turn returns to idle. The container

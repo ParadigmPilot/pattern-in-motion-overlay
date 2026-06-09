@@ -1,5 +1,5 @@
-import { render, cleanup, act, fireEvent } from '@testing-library/react';
-import { afterEach, describe, it, expect, vi } from 'vitest';
+import { render, cleanup, act } from '@testing-library/react';
+import { afterEach, describe, it, expect } from 'vitest';
 import { ManualOverlay } from './ManualOverlay.jsx';
 
 afterEach(cleanup);
@@ -43,7 +43,7 @@ describe('ManualOverlay scaffold (Component #6)', () => {
   it('renders all six elements with the manifest values for the active step', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} onAdvance={() => {}} />
+      <ManualOverlay substrate={substrate} />
     );
 
     act(() => {
@@ -87,14 +87,14 @@ describe('ManualOverlay scaffold (Component #6)', () => {
       BRIEF_MANIFEST.up_next
     );
 
-    // The labeled advance button.
-    expect(container.querySelector('.manual-overlay-advance')).not.toBeNull();
+    // The overlay owns no advance affordance (D-WS2-23).
+    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
   });
 
   it('renders nothing at idle (no active Service step)', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} onAdvance={() => {}} />
+      <ManualOverlay substrate={substrate} />
     );
 
     expect(container.querySelector('.manual-overlay')).toBeNull();
@@ -104,7 +104,7 @@ describe('ManualOverlay scaffold (Component #6)', () => {
   it('returns to idle (renders nothing) when the active step ends', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} onAdvance={() => {}} />
+      <ManualOverlay substrate={substrate} />
     );
 
     act(() => {
@@ -126,24 +126,6 @@ describe('ManualOverlay scaffold (Component #6)', () => {
     expect(container.querySelector('.manual-overlay')).toBeNull();
   });
 
-  it('calls onAdvance exactly once when the advance button is clicked', () => {
-    const substrate = createTestSubstrate(BRIEF_MANIFEST);
-    const onAdvance = vi.fn();
-    const { container } = render(
-      <ManualOverlay substrate={substrate} onAdvance={onAdvance} />
-    );
-
-    act(() => {
-      substrate.emit({
-        type: 'step_started',
-        stepId: 'brief_the_chef',
-        timestamp: Date.now(),
-      });
-    });
-
-    fireEvent.click(container.querySelector('.manual-overlay-advance'));
-    expect(onAdvance).toHaveBeenCalledTimes(1);
-  });
 });
 
 const DEMO_PROSE =
@@ -162,14 +144,10 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
     });
   }
 
-  it('renders the six teaching elements + advance button before Step 05', () => {
+  it('renders the six teaching elements (no advance button) before Step 05', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay
-        substrate={substrate}
-        responseProse={DEMO_PROSE}
-        onAdvance={() => {}}
-      />
+      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
     );
 
     startStep(substrate, 'brief_the_chef');
@@ -180,7 +158,8 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
     expect(container.querySelector('.manual-overlay-in-code')).not.toBeNull();
     expect(container.querySelector('.manual-overlay-just-finished')).not.toBeNull();
     expect(container.querySelector('.manual-overlay-up-next')).not.toBeNull();
-    expect(container.querySelector('.manual-overlay-advance')).not.toBeNull();
+    // The overlay owns no advance affordance (D-WS2-23).
+    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
     // Pre-05: not yet in prose mode.
     expect(container.querySelector('.manual-overlay-response')).toBeNull();
   });
@@ -188,11 +167,7 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
   it('swaps the overlay for the response prose at serve_by_type', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay
-        substrate={substrate}
-        responseProse={DEMO_PROSE}
-        onAdvance={() => {}}
-      />
+      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
     );
 
     startStep(substrate, 'serve_by_type');
@@ -201,19 +176,14 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
     expect(prose).not.toBeNull();
     expect(prose.textContent).toBe(DEMO_PROSE);
     expect(container.querySelector('.manual-overlay--prose')).not.toBeNull();
-    // The six teaching elements + advance button are gone.
+    // The six teaching elements are gone (prose only).
     expect(container.querySelector('.manual-overlay-step')).toBeNull();
-    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
   });
 
   it('persists the prose through stock_the_pantry when serve_by_type ends (overlap)', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay
-        substrate={substrate}
-        responseProse={DEMO_PROSE}
-        onAdvance={() => {}}
-      />
+      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
     );
 
     startStep(substrate, 'serve_by_type');
@@ -223,17 +193,12 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
     const prose = container.querySelector('.manual-overlay-response');
     expect(prose).not.toBeNull();
     expect(prose.textContent).toBe(DEMO_PROSE);
-    expect(container.querySelector('.manual-overlay-advance')).toBeNull();
   });
 
   it('returns to null at idle after the prose turn completes', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay
-        substrate={substrate}
-        responseProse={DEMO_PROSE}
-        onAdvance={() => {}}
-      />
+      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
     );
 
     startStep(substrate, 'serve_by_type');

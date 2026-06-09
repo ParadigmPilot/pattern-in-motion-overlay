@@ -194,7 +194,6 @@ function ExampleHarness() {
         <ManualOverlay
           substrate={gate}
           responseProse={DEMO_RESPONSE_PROSE}
-          onAdvance={() => gate.advance()}
         />
       </section>
       <section className="event-log-mount">
