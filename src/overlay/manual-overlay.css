@@ -92,10 +92,8 @@
   border-radius: var(--radius-md);
 }
 
-/* The response paragraph mirrors .manual-overlay-plain's text treatment. */
+/* The response paragraph mirrors .manual-overlay-plain: margin reset only.
+   color, font-size, and line-height inherit from the base .manual-overlay rule. */
 .manual-overlay-response {
   margin: 0;
-  color: var(--color-charcoal);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-snug);
 }
