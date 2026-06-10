@@ -195,7 +195,7 @@ function ExampleHarness() {
           substrate={gate}
           responseProse={DEMO_RESPONSE_PROSE}
         />
-        {stepOn && <ResponseReadyStrip />}
+        {stepOn && <ResponseReadyStrip substrate={gate} />}
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>

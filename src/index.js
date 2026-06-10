@@ -15,7 +15,8 @@
  *   Toggle          — Manual / Automatic ("Step") mode switch (WO-313.7.a — shipped)
  *   createModeGate  — buffer-and-release mode gate; Manual buffers, Automatic forwards (WO-313.7.a — shipped)
  *   ManualOverlay   — assistant-area per-state teaching panel + advance button (scaffold WO-314.3.b)
- *   Cycle 314+      — response-ready strip, capture
+ *   ResponseReadyStrip — assistant-area response-ready status strip (scaffold WO-314.5.a; lifecycle WO-314.5.b)
+ *   Cycle 314+      — capture
  *
  * Composition guide for third-party use cases (N != 6 steps, non-Restaurant-
  * Pattern domains): import { Pill, useStepStates } and compose a custom
