@@ -3,13 +3,15 @@
    Assistant-area status strip: signals the answer is ready while
    the visitor finishes the walkthrough (D-WS2-14).
 
-   SCAFFOLD (WO-314.5a): structural skeleton only. Layout + spacing +
-   type from existing tokens. Visual polish and the show/hide states
-   are deferred to the build / close WOs.
+   A warm "ready" callout — amber active-fill + canon stroke, in the
+   overlay's existing amber affordance family (the demo hint box and
+   the active Pin/Pill state) — so it reads as a distinct signal
+   beside the teaching panel rather than another muted meta line.
+   A single space step sets it off from the panel above.
 
    Tokens consumed (see ../tokens.css):
-     --space-3
-     --color-stone
+     --space-3, --space-4
+     --color-amber, --color-amber-soft, --color-amber-deep
      --font-body
      --font-size-sm
      --line-height-snug
@@ -17,9 +19,12 @@
    ============================================================ */
 
 .response-ready-strip {
-  padding: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-amber);
   border-radius: var(--radius-md);
-  color: var(--color-stone);
+  background-color: var(--color-amber-soft);
+  color: var(--color-amber-deep);
   font-family: var(--font-body);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-snug);
