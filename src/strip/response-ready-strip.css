@@ -1,0 +1,26 @@
+/* ============================================================
+   ResponseReadyStrip (Component #7) — Pattern-in-Motion overlay
+   Assistant-area status strip: signals the answer is ready while
+   the visitor finishes the walkthrough (D-WS2-14).
+
+   SCAFFOLD (WO-314.5a): structural skeleton only. Layout + spacing +
+   type from existing tokens. Visual polish and the show/hide states
+   are deferred to the build / close WOs.
+
+   Tokens consumed (see ../tokens.css):
+     --space-3
+     --color-stone
+     --font-body
+     --font-size-sm
+     --line-height-snug
+     --radius-md
+   ============================================================ */
+
+.response-ready-strip {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-stone);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+}

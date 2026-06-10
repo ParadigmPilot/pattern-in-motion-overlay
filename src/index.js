@@ -30,5 +30,6 @@ export { STEP_ICONS, CHECK_ICON, SVG_PROPS } from './icons/StepIcons.jsx';
 export { Toggle } from './mode/Toggle.jsx';
 export { createModeGate } from './mode/createModeGate.js';
 export { ManualOverlay } from './overlay/ManualOverlay.jsx';
+export { ResponseReadyStrip } from './strip/ResponseReadyStrip.jsx';
 
 export const VERSION = '0.0.0';

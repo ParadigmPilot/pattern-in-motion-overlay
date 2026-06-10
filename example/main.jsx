@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { createMockSubstrate, SPEED_PRESETS, SERVICE_STEPS } from './mock-substrate.js';
-import { Pin, Trace, Toggle, ManualOverlay, createModeGate } from '../src/index.js';
+import { Pin, Trace, Toggle, ManualOverlay, ResponseReadyStrip, createModeGate } from '../src/index.js';
 import '../src/tokens.css';
 
 const SPEED_STORAGE_KEY = 'pim-overlay-speed';
@@ -195,6 +195,7 @@ function ExampleHarness() {
           substrate={gate}
           responseProse={DEMO_RESPONSE_PROSE}
         />
+        {stepOn && <ResponseReadyStrip />}
       </section>
       <section className="event-log-mount">
         <h2>Event log</h2>
