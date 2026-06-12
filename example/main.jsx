@@ -184,7 +184,9 @@ function ExampleHarness() {
             uncontrolled Trace. Inline, co-located — no portal, no fixed panel. */}
         <div className="chat-history">
           {finishedTurns.map((frozen, i) => (
-            <Trace key={`finished-${i}`} substrate={gate} states={frozen} />
+            <div key={`finished-${i}`} className="turn-collapsed" data-turn={i + 1}>
+              Turn {i + 1} · {frozen.size} steps · complete
+            </div>
           ))}
           <Trace key={activeTurnKey} substrate={gate} />
         </div>
