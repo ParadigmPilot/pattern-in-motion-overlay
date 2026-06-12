@@ -70,25 +70,6 @@ h1 {
   background: #374151;
 }
 
-.new-turn-button {
-  font: inherit;
-  padding: 0.5rem 1rem;
-  background: #fff;
-  color: #1f2937;
-  border: 1px solid #1f2937;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.new-turn-button:hover:not(:disabled) {
-  background: #f3f4f6;
-}
-
-.new-turn-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .speed-control {
   display: inline-flex;
   border: 1px solid #d1d5db;
@@ -135,4 +116,19 @@ h1 {
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.turn-collapsed {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
 }
