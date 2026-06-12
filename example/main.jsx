@@ -183,11 +183,15 @@ function ExampleHarness() {
             Traces, stacked oldest->newest; the active turn renders last as an
             uncontrolled Trace. Inline, co-located — no portal, no fixed panel. */}
         <div className="chat-history">
-          {finishedTurns.map((frozen, i) => (
-            <div key={`finished-${i}`} className="turn-collapsed" data-turn={i + 1}>
-              Turn {i + 1} · {frozen.size} steps · complete
+          {finishedTurns.length > 0 && (
+            <div className="turn-history">
+              {finishedTurns.map((frozen, i) => (
+                <div key={`finished-${i}`} className="turn-collapsed" data-turn={i + 1}>
+                  Turn {i + 1} · {frozen.size} steps · complete
+                </div>
+              ))}
             </div>
-          ))}
+          )}
           <Trace key={activeTurnKey} substrate={gate} />
         </div>
       </section>

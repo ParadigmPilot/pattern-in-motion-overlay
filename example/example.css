@@ -124,11 +124,21 @@ h1 {
   gap: var(--space-3);
 }
 
-.turn-collapsed {
-  padding: 0.4rem 0.75rem;
+.turn-history {
   border: 1px solid #e5e7eb;
   border-radius: var(--radius-md);
   background: #fff;
+  overflow: hidden;
+}
+
+.turn-collapsed {
+  padding: 0.2rem 0.75rem;
   color: var(--color-stone);
   font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.turn-collapsed:last-child {
+  border-bottom: none;
 }
