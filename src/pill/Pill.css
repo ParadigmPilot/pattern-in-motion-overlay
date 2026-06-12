@@ -92,7 +92,10 @@
    carries an amber ring for at-a-glance "you are here". */
 .trace--compact .pill {
   min-width: 0;
+  width: var(--pill-reserved-height);
+  padding: 0;
   flex-shrink: 0;
+  justify-content: center;
 }
 
 .trace--compact .pill-anchor,
@@ -109,6 +112,9 @@
 }
 
 .trace--compact .pill-active {
+  background: var(--color-amber);
+  color: var(--color-amber-soft);
+  border-color: var(--color-amber-deep);
   outline: 2px solid var(--color-amber);
   outline-offset: 1px;
 }
