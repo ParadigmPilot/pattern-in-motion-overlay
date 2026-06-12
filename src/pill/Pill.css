@@ -85,6 +85,20 @@
   opacity: 0.75;
 }
 
+/* Compact wayfinding variant (D-WS2-25): peg visually hidden but retained in the
+   DOM and accessible name — screen readers still announce both labels. */
+.trace--compact .pill-peg {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .pill-fallback {
   font-size: var(--font-size-sm);
   font-style: italic;

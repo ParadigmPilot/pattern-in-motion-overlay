@@ -192,7 +192,9 @@ function ExampleHarness() {
               ))}
             </div>
           )}
-          <Trace key={activeTurnKey} substrate={gate} />
+          <div className="trace--compact">
+            <Trace key={activeTurnKey} substrate={gate} />
+          </div>
         </div>
       </section>
       <section className="overlay-mount">

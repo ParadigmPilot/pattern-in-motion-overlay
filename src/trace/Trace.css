@@ -27,3 +27,10 @@
 .trace + .trace {
   margin-top: var(--space-5);
 }
+
+/* Compact wayfinding variant (D-WS2-25): single non-wrapping row so Send stays
+   reachable without scrolling. Peg suppression lives in Pill.css. */
+.trace--compact .trace {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
