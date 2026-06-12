@@ -27,3 +27,11 @@
 .trace + .trace {
   margin-top: var(--space-5);
 }
+
+/* Compact wayfinding variant (D-WS2-25, state-dots path): single non-wrapping
+   row of icon-only chips so all six steps fit the smallest target and the
+   active step stays visible. Chip treatment lives in Pill.css. */
+.trace--compact .trace {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
