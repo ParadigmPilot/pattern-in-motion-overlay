@@ -10,10 +10,16 @@ const SPEED_NAMES = ['slow', 'default', 'fast'];
 const MODE_STORAGE_KEY = 'pim-overlay-mode';
 const MODE_NAMES = ['manual', 'automatic'];
 
-// Demo LLM response prose surfaced by the Step-05 overlay→prose swap. Supplied
-// by the host because the substrate is sealed to events-only (A2 contract).
+// Demo LLM response prose surfaced by the Step-05 overlay->prose swap, and
+// shown as the assistant bubble once a turn completes. Supplied by the host
+// because the substrate is sealed to events-only (A2 contract).
 const DEMO_RESPONSE_PROSE =
   "Thanks — I've reviewed the intake. This looks like a priority orientation & mobility referral: low-vision student, new cane-travel goals, IEP timeline active. I've drafted an evaluation request routed to the COMS queue. Review it below before you send.";
+
+// Seed text so the mock preview always opens with something to send. In the
+// real composed app the host's input supplies this.
+const DEMO_PATRON_SEED =
+  'New referral: low-vision student, IEP active, needs cane-travel goals.';
 
 function loadSavedSpeed() {
   try {
@@ -53,22 +59,26 @@ function saveMode(name) {
   }
 }
 
-function ExampleHarness() {
+// Composed preview: the Intake Triager chat with the Pattern-in-Motion overlay
+// inline. Reuses the harness wiring (mode gate, single Send control, mode /
+// speed persistence, finished-turn model); the layout is the assembled
+// composed view (D-WS2-1/8/13/24/25). Mock-driven — the real driver, real
+// strip timing, and the host slot are successor WOs.
+function ComposedView() {
   const [events, setEvents] = useState([]);
-  // Wrap the mock substrate in a mode gate. Pin, Trace, and the event log all
-  // subscribe to the gate, so Manual buffering applies uniformly.
   const [gate] = useState(() => createModeGate(createMockSubstrate(), loadSavedMode()));
   const [speedName, setSpeedName] = useState(loadSavedSpeed);
   const [stepOn, setStepOn] = useState(() => gate.getMode() === 'manual');
   const [started, setStarted] = useState(false);
-  // `playing` is true only while an automatic playback is actively running
-  // (a fresh auto turn, or a Send-driven drain of a partly-stepped turn).
-  // Send is disabled only then — never while automatic is merely armed.
   const [playing, setPlaying] = useState(false);
-  // Host-owned turn model: finished turns persist as frozen state Maps;
-  // activeTurnKey remounts the live (uncontrolled) Trace on a turn boundary.
-  const [finishedTurns, setFinishedTurns] = useState([]);
+
+  // Composed chat model: completed turns carry patron text + assistant prose +
+  // a frozen Trace map (the collapsed summary row, D-WS2-24). The live turn
+  // carries the frozen patron text (D-WS2-16).
+  const [history, setHistory] = useState([]);
+  const [livePatron, setLivePatron] = useState(null);
   const [activeTurnKey, setActiveTurnKey] = useState(0);
+  const [inputValue, setInputValue] = useState(DEMO_PATRON_SEED);
 
   useEffect(() => {
     const unsubscribe = gate.subscribe((event) => {
@@ -80,15 +90,34 @@ function ExampleHarness() {
   const completedCount = events.filter((e) => e.type === 'step_ended').length;
   const turnComplete = started && completedCount >= SERVICE_STEPS.length;
 
-  // A finished turn (or an aborted playback) is no longer playing.
   useEffect(() => {
     if (turnComplete) setPlaying(false);
   }, [turnComplete]);
 
-  // Start a fresh turn per the current mode. The mock emits synchronously at
-  // duration 0, so in Step mode the whole turn is buffered immediately and we
-  // reveal step 1 on this same press (no dead first Send). In auto, the
-  // substrate timer plays the turn live.
+  // On completion the overlay hands the reply off to the transcript: archive
+  // the live turn (patron + prose + frozen Trace), remount a clean live Trace,
+  // return the substrate to idle, and re-enable the input (D-WS2-19 re-enables
+  // at Step 06; D-WS1-5 returns to at_the_table).
+  useEffect(() => {
+    if (!turnComplete || livePatron === null) return;
+    setHistory((prev) => [
+      ...prev,
+      {
+        patron: livePatron,
+        assistant: DEMO_RESPONSE_PROSE,
+        frozen: new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
+      },
+    ]);
+    setLivePatron(null);
+    setActiveTurnKey((k) => k + 1);
+    setStarted(false);
+    gate.reset();
+    setEvents([]);
+  }, [turnComplete, livePatron, gate]);
+
+  // Start a fresh turn per the current mode (unchanged harness wiring). The
+  // mock emits synchronously at duration 0, so in Step mode the whole turn is
+  // buffered immediately and step 1 reveals on this same press.
   function startFreshTurn() {
     gate.reset();
     setEvents([]);
@@ -102,19 +131,15 @@ function ExampleHarness() {
     }
   }
 
-  // Single action. Send = start / advance / play-remaining / next-turn, by phase.
+  // Single Send control (D-WS2-23). Idle: submit a new turn (freeze the patron
+  // text, start the walk). Manual mid-turn: advance one step. Automatic armed:
+  // play the remaining buffer at the chosen speed.
   function send() {
-    if (turnComplete) {
-      // Fold "New turn" into Send: archive the finished turn, then start fresh.
-      setFinishedTurns((prev) => [
-        ...prev,
-        new Map(SERVICE_STEPS.map((s) => [s, 'complete'])),
-      ]);
-      setActiveTurnKey((key) => key + 1);
-      startFreshTurn();
-      return;
-    }
     if (!started) {
+      const text = inputValue.trim();
+      if (!text) return;
+      setLivePatron(text);
+      setInputValue('');
       startFreshTurn();
       return;
     }
@@ -122,8 +147,6 @@ function ExampleHarness() {
       gate.advance();
       return;
     }
-    // Step off, mid-turn: automatic is armed and waiting — Send plays the
-    // remaining buffer out on the speed timeline.
     setPlaying(true);
     gate.playRemaining(SPEED_PRESETS[speedName]);
   }
@@ -142,10 +165,62 @@ function ExampleHarness() {
     if (next) setPlaying(false);
   }
 
+  const locked = started; // field frozen while a turn is in progress (D-WS2-16/19)
+  const sendDisabled = !started ? inputValue.trim().length === 0 : playing;
+
   return (
-    <div>
-      <div className="controls">
-        <button className="run-button" onClick={send} disabled={playing}>Send</button>
+    <div className="composed">
+      <div className="composed-head">
+        <h1>Intake Triager</h1>
+        <span className="composed-tag">Pattern in Motion · composed preview</span>
+      </div>
+
+      <div className="chat">
+        {history.map((turn, i) => (
+          <div key={`turn-${i}`} className="turn">
+            <div className="msg msg-patron">{turn.patron}</div>
+            <div className="msg msg-assistant">{turn.assistant}</div>
+            <div className="turn-meta-row" data-turn={i + 1}>
+              <span>Turn {i + 1} · {turn.frozen.size} steps · complete</span>
+              <span className="replay-seam" aria-hidden="true">⟳</span>
+            </div>
+          </div>
+        ))}
+
+        {livePatron !== null && (
+          <div className="turn turn-live">
+            <div className="msg msg-patron msg-frozen">{livePatron}</div>
+            <div className="live-block">
+              <div className="trace--compact">
+                <Trace key={activeTurnKey} substrate={gate} />
+              </div>
+              <div className="assistant-area">
+                {stepOn && <ResponseReadyStrip substrate={gate} />}
+                <ManualOverlay substrate={gate} responseProse={DEMO_RESPONSE_PROSE} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {history.length === 0 && livePatron === null && (
+          <div className="chat-empty" role="note">
+            Describe an intake below and press <strong>Send</strong> to walk the turn.
+          </div>
+        )}
+      </div>
+
+      <div className="control-bar">
+        <input
+          className="intake-input"
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder={locked ? 'Input locked — walking the turn…' : 'Describe the intake…'}
+          disabled={locked}
+          onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+          aria-label="Intake message"
+        />
+        <button className="run-button" onClick={send} disabled={sendDisabled}>Send</button>
         <Toggle checked={stepOn} onChange={toggleStep} label="Step" />
         {!stepOn && (
           <div className="speed-control" role="group" aria-label="Step speed">
@@ -163,55 +238,25 @@ function ExampleHarness() {
           </div>
         )}
       </div>
+
       <div className="mode-status" role="status" aria-live="polite">
         {stepOn
-          ? 'Step mode on — each Send reveals the next step. Switch off, then Send, to finish automatically.'
-          : 'Step mode off — Send plays the whole turn.'}
+          ? 'Manual — each Send reveals the next step. Toggle Step off, then Send, to play automatically.'
+          : 'Automatic — Send plays the whole turn at the chosen speed.'}
       </div>
-      {!started && (
-        <div className="run-hint" role="note">
-          Click <strong>Send</strong> to {stepOn ? 'walk the turn step by step.' : 'play a scripted turn.'}
-        </div>
-      )}
-      <section className="pin-mount">
-        <h2>Pin renderer</h2>
-        <Pin substrate={gate} />
-      </section>
-      <section className="trace-mount">
-        <h2>Trace renderer</h2>
-        {/* Chat-history column (D-WS2-1): finished turns persist as controlled
-            Traces, stacked oldest->newest; the active turn renders last as an
-            uncontrolled Trace. Inline, co-located — no portal, no fixed panel. */}
-        <div className="chat-history">
-          {finishedTurns.length > 0 && (
-            <div className="turn-history">
-              {finishedTurns.map((frozen, i) => (
-                <div key={`finished-${i}`} className="turn-collapsed" data-turn={i + 1}>
-                  Turn {i + 1} · {frozen.size} steps · complete
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="trace--compact">
-            <Trace key={activeTurnKey} substrate={gate} />
-          </div>
-        </div>
-      </section>
-      <section className="overlay-mount">
-        <h2>Manual-mode overlay</h2>
-        <ManualOverlay
-          substrate={gate}
-          responseProse={DEMO_RESPONSE_PROSE}
-        />
-        {stepOn && <ResponseReadyStrip substrate={gate} />}
-      </section>
-      <section className="event-log-mount">
-        <h2>Event log</h2>
+
+      {/* Pin is redundant in this layout (the compact Trace + overlay header
+          already spotlight the active step). Mounted for harness parity and
+          flagged as the BL-4 fold-vs-remove case (Cycle 315.5), alongside the
+          event log, in a collapsed debug panel. */}
+      <details className="debug-panel">
+        <summary>Debug · Pin renderer + event log</summary>
+        <section className="pin-mount">
+          <Pin substrate={gate} />
+        </section>
         <div id="event-log">
           {events.length === 0 ? (
-            <div className="event-row">
-              <em>Events will appear here once a turn runs.</em>
-            </div>
+            <div className="event-row"><em>Events will appear here once a turn runs.</em></div>
           ) : (
             events.map((e, i) => (
               <div key={i} className={`event-row ${e.type}`}>
@@ -220,9 +265,9 @@ function ExampleHarness() {
             ))
           )}
         </div>
-      </section>
+      </details>
     </div>
   );
 }
 
-createRoot(document.getElementById('root')).render(<ExampleHarness />);
+createRoot(document.getElementById('root')).render(<ComposedView />);
