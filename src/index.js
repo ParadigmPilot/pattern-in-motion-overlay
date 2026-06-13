@@ -16,6 +16,7 @@
  *   createModeGate  — buffer-and-release mode gate; Manual buffers, Automatic forwards (WO-313.7.a — shipped)
  *   ManualOverlay   — assistant-area per-state teaching panel + advance button (scaffold WO-314.3.b)
  *   ResponseReadyStrip — assistant-area response-ready status strip (scaffold WO-314.5.a; lifecycle WO-314.5.b)
+ *   createTurnDriver — universal turn-lifecycle → six-step substrate driver (WO-315.3c1)
  *   Cycle 314+      — capture
  *
  * Composition guide for third-party use cases (N != 6 steps, non-Restaurant-
@@ -32,5 +33,6 @@ export { Toggle } from './mode/Toggle.jsx';
 export { createModeGate } from './mode/createModeGate.js';
 export { ManualOverlay } from './overlay/ManualOverlay.jsx';
 export { ResponseReadyStrip } from './strip/ResponseReadyStrip.jsx';
+export { createTurnDriver } from './compose/createTurnDriver.js';
 
 export const VERSION = '0.0.0';
