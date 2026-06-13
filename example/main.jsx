@@ -78,6 +78,7 @@ function ComposedView() {
   const [history, setHistory] = useState([]);
   const [livePatron, setLivePatron] = useState(null);
   const [activeTurnKey, setActiveTurnKey] = useState(0);
+  const [pendingFirstStep, setPendingFirstStep] = useState(false);
   const [inputValue, setInputValue] = useState(DEMO_PATRON_SEED);
 
   useEffect(() => {
@@ -115,16 +116,29 @@ function ComposedView() {
     setEvents([]);
   }, [turnComplete, livePatron, gate]);
 
-  // Start a fresh turn per the current mode (unchanged harness wiring). The
-  // mock emits synchronously at duration 0, so in Step mode the whole turn is
-  // buffered immediately and step 1 reveals on this same press.
+  // First-step release (mount-before-advance). The live block (Trace + overlay)
+  // must be mounted and subscribed before the gate releases step 01, per
+  // station-arch §5 ("trace renders all six pills the moment the Patron hits
+  // send"). startFreshTurn arms pendingFirstStep; this post-commit effect runs
+  // after the live block has subscribed, then releases the first step once.
+  // One-shot per turn (flag-gated) so turn 2+ does not double-advance.
+  useEffect(() => {
+    if (!pendingFirstStep) return;
+    gate.advance();
+    setPendingFirstStep(false);
+  }, [pendingFirstStep, gate]);
+
+  // Start a fresh turn per the current mode (unchanged harness wiring). The mock
+  // buffers the whole turn synchronously at duration 0; in Step mode the first
+  // step's reveal is deferred to the post-commit effect above so the live block
+  // is subscribed before step 01 is released.
   function startFreshTurn() {
     gate.reset();
     setEvents([]);
     setStarted(true);
     if (stepOn) {
       gate.runScriptedTurn(0);
-      gate.advance();
+      setPendingFirstStep(true);
     } else {
       setPlaying(true);
       gate.runScriptedTurn(SPEED_PRESETS[speedName]);
