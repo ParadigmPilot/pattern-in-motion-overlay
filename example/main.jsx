@@ -173,6 +173,7 @@ function ComposedView() {
           <p className="composed-meta">
             <span className="composed-with">with</span>
             <span className="composed-badge">Pattern in Motion</span>
+            <span className="composed-sep" aria-hidden="true">·</span>
             <span className="composed-preview">Preview</span>
           </p>
         </div>
