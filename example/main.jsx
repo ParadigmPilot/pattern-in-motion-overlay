@@ -44,6 +44,9 @@ function ComposedView() {
   // on each Send / Next Step press (Zone 2).
   const liveBlockRef = useRef(null);
 
+  // Intake textarea: auto-grows 1->3 lines (then scrolls), growing upward.
+  const intakeRef = useRef(null);
+
   useEffect(() => {
     const unsubscribe = gate.subscribe((event) => {
       setEvents((prev) => [...prev, event]);
@@ -109,6 +112,21 @@ function ComposedView() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [logOpen]);
+
+  // Auto-grow the intake textarea to fit its content; CSS max-height caps the
+  // visible height at ~3 lines and scrolls past that. Resetting to 'auto'
+  // before measuring lets the field shrink back as content is deleted.
+  function autosize(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }
+
+  // Size the field on (re)mount at idle, so the seeded intake renders at its
+  // natural height (the textarea remounts fresh after each turn archives).
+  useEffect(() => {
+    if (!started) autosize(intakeRef.current);
+  }, [started]);
 
   // Start a fresh Manual turn. The mock buffers the whole turn synchronously at
   // duration 0; the first step's reveal is deferred to the post-commit effect
@@ -201,13 +219,19 @@ function ComposedView() {
       <div className="control-bar">
         {!started ? (
           <>
-            <input
+            <textarea
+              ref={intakeRef}
               className="intake-input"
-              type="text"
+              rows={1}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => { setInputValue(e.target.value); autosize(e.target); }}
               placeholder="Describe the intake…"
-              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
               aria-label="Intake message"
             />
             <button
