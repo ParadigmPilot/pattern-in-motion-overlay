@@ -202,12 +202,6 @@ function ComposedView() {
               </div>
             </div>
           )}
-
-          {history.length === 0 && livePatron === null && (
-            <div className="chat-empty" role="note">
-              Describe an intake below and press <strong>Send</strong> to walk the turn.
-            </div>
-          )}
         </div>
 
       </div>

@@ -136,13 +136,6 @@ h1 {
   margin-bottom: 1rem;
 }
 
-.chat-empty {
-  padding: 1rem;
-  text-align: center;
-  color: var(--color-stone);
-  font-size: 0.875rem;
-}
-
 .turn {
   display: flex;
   flex-direction: column;
