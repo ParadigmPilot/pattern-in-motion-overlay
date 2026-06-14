@@ -208,6 +208,16 @@ h1 {
   min-height: 8rem; /* coarse reserved height for the preview (D-WS2-2) */
 }
 
+/* Interim Step-06 signal (WO-315.5e): copy-only line beneath the persisting
+   served prose, giving the 05 -> 06 transition a visible change. Muted, small;
+   existing tokens only. Makes no persistence/database assertion. */
+.step-six-signal {
+  margin: 0;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+}
+
 /* Anchored control footer (WO-315.5d): direct child of the .composed flex
    column, pinned below the scroll region so the snap-to-top never drags it. */
 .control-bar {
