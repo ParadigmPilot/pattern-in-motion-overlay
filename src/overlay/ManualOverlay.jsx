@@ -15,10 +15,11 @@ import './manual-overlay.css';
  * The overlay owns no advance affordance (D-WS2-23): advancing is host-owned
  * (the host's Send control plus the trace's click-to-advance per D-WS2-9).
  *
- * Step 05 swap (D-WS2-13): on `serve_by_type` the overlay is REPLACED by the
- * host-supplied LLM response prose (`responseProse`). The prose persists
- * through Step 06 (`stock_the_pantry`, background) until the turn returns to
- * idle. The teaching overlay is gone; the prose is the content.
+ * Step 05 onward (D-WS2-27): the served answer is host-owned. On `serve_by_type`
+ * the overlay renders nothing (`null`) and continues to render nothing through
+ * Step 06 (`stock_the_pantry`, background) until the turn returns to idle. #6
+ * teaches steps 01-04 only; the host renders the served answer in its own chat
+ * surface (the overlay no longer renders host content - D-WS1-9 host-purity).
  *
  * `just_finished` first-entry conditional — MOOT (recorded, no code): the
  * manifest canon populates `just_finished` for all seven states including the
@@ -33,9 +34,6 @@ import './manual-overlay.css';
  * @param {{ subscribe: Function, loadManifest: Function }} props.substrate
  *   Host-bound substrate adapter. `subscribe(callback)` returns an unsubscribe
  *   function; `loadManifest(stepId)` returns a frozen seven-field manifest.
- * @param {string} props.responseProse
- *   The LLM response prose shown when the visitor reaches Step 05. Host-supplied
- *   because the substrate is sealed to events-only (A2 contract).
  */
 
 const SERVICE_STEPS = [
@@ -49,7 +47,7 @@ const SERVICE_STEPS = [
 
 const SERVE_STEP = 'serve_by_type';
 
-export function ManualOverlay({ substrate, responseProse }) {
+export function ManualOverlay({ substrate }) {
   const [activeSteps, setActiveSteps] = useState(() => new Set());
   const [currentStepId, setCurrentStepId] = useState(null);
   const [reachedServe, setReachedServe] = useState(false);
@@ -86,18 +84,11 @@ export function ManualOverlay({ substrate, responseProse }) {
     return null;
   }
 
-  // Step 05 onward (D-WS2-13): overlay swaps to the LLM response prose and
-  // persists through Step 06 until return-to-idle. No advance button.
+  // Step 05 onward (D-WS2-27): the served answer is host-owned. #6 teaches
+  // steps 01-04 only and renders nothing from serve_by_type through
+  // return-to-idle.
   if (reachedServe) {
-    return (
-      <section
-        className="manual-overlay manual-overlay--prose"
-        aria-live="polite"
-        data-step-id={SERVE_STEP}
-      >
-        <p className="manual-overlay-response">{responseProse}</p>
-      </section>
-    );
+    return null;
   }
 
   // Defensive: no current step resolved yet.
