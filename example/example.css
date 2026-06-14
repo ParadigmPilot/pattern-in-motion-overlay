@@ -115,9 +115,19 @@ h1 {
 
 .composed-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+/* Title group: host app name (h1) stacked over the overlay subtitle, so a
+   variable-length third-party app name keeps the full row and the subtitle
+   reads as a proper subtitle rather than a competitor on the same baseline. */
+.composed-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0; /* let a long h1 wrap/shrink instead of shoving the trigger */
 }
 
 .composed-head h1 {
@@ -127,6 +137,25 @@ h1 {
 .composed-tag {
   font-size: var(--font-size-sm);
   color: var(--color-stone);
+}
+
+/* Event-log trigger label vs chevron: the full "Event log" words on wide
+   viewports; on narrow ones the label collapses to a chevron/triangle (the
+   drawer keeps the full heading; aria-label keeps the control legible to
+   screen readers in both states). */
+.log-trigger-chevron {
+  display: none;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (max-width: 30rem) {
+  .log-trigger-label {
+    display: none;
+  }
+  .log-trigger-chevron {
+    display: inline;
+  }
 }
 
 .chat {
