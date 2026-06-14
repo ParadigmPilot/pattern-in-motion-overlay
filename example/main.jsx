@@ -54,6 +54,13 @@ function ComposedView() {
   const completedCount = events.filter((e) => e.type === 'step_ended').length;
   const turnComplete = started && completedCount >= SERVICE_STEPS.length;
 
+  // Step 06 (stock_the_pantry) active once its start event has been released —
+  // false at Step 05, true at Step 06. Clears when the turn archives and the
+  // live block unmounts (events reset to []).
+  const atPantry = events.some(
+    (e) => e.type === 'step_started' && e.stepId === 'stock_the_pantry',
+  );
+
   // On completion the overlay hands the reply off to the transcript: archive
   // the live turn (patron + prose + frozen Trace), remount a clean live Trace,
   // return the substrate to idle, and re-enable the input (D-WS2-19 re-enables
@@ -168,6 +175,11 @@ function ComposedView() {
                 </div>
                 <div className="assistant-area">
                   <ManualOverlay substrate={gate} responseProse={DEMO_RESPONSE_PROSE} />
+                  {atPantry && (
+                    <p className="step-six-signal">
+                      Behind the scenes — saving this turn to your recent history.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
