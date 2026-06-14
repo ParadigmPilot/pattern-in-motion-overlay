@@ -134,8 +134,34 @@ h1 {
   margin: 0;
 }
 
-.composed-tag {
+/* Applied-overlay label (BL-11, GOLD form): the host app name is the title; the
+   line beneath reads "with [Pattern in Motion]" — a relational "with" plus an
+   amber badge — so it reads as the overlay APPLIED to this app, not as the app's
+   own subtitle. "Preview" is a separate, muted build-state tag, kept distinct
+   from the brand badge. Amber triad + stone only; zero new tokens. */
+.composed-meta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   font-size: var(--font-size-sm);
+}
+
+.composed-with {
+  color: var(--color-stone);
+}
+
+.composed-badge {
+  padding: 0.05rem 0.45rem;
+  background: var(--color-amber-soft);
+  border: 1px solid var(--color-amber);
+  border-radius: var(--radius-md);
+  color: var(--color-amber-deep);
+  font-weight: var(--font-weight-semibold);
+}
+
+.composed-preview {
   color: var(--color-stone);
 }
 

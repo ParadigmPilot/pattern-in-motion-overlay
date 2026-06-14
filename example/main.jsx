@@ -170,7 +170,11 @@ function ComposedView() {
       <div className="composed-head">
         <div className="composed-title">
           <h1>Intake Triager</h1>
-          <span className="composed-tag">Pattern in Motion · composed preview</span>
+          <p className="composed-meta">
+            <span className="composed-with">with</span>
+            <span className="composed-badge">Pattern in Motion</span>
+            <span className="composed-preview">Preview</span>
+          </p>
         </div>
         <button
           className="log-trigger"
