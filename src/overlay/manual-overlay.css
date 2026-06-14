@@ -69,18 +69,3 @@
   color: var(--color-stone);
   font-size: var(--font-size-sm);
 }
-
-/* Step-05 prose swap (D-WS2-13): on serve_by_type the teaching overlay is
-   replaced by the host-supplied LLM response prose, which persists through
-   Step 06 (stock_the_pantry) until the turn returns to idle. The container
-   reuses the base .manual-overlay padding / radius tokens. */
-.manual-overlay--prose {
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-}
-
-/* The response paragraph mirrors .manual-overlay-plain: margin reset only.
-   color, font-size, and line-height inherit from the base .manual-overlay rule. */
-.manual-overlay-response {
-  margin: 0;
-}

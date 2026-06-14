@@ -128,10 +128,7 @@ describe('ManualOverlay scaffold (Component #6)', () => {
 
 });
 
-const DEMO_PROSE =
-  "Thanks — I've drafted the evaluation request. Review it below before you send.";
-
-describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
+describe('ManualOverlay Step-05 onward — host-owned answer (WO-315.6a)', () => {
   function startStep(substrate, stepId) {
     act(() => {
       substrate.emit({ type: 'step_started', stepId, timestamp: Date.now() });
@@ -147,7 +144,7 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
   it('renders the six teaching elements (no advance button) before Step 05', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
+      <ManualOverlay substrate={substrate} />
     );
 
     startStep(substrate, 'brief_the_chef');
@@ -160,45 +157,40 @@ describe('ManualOverlay Step-05 prose swap (WO-314.4a)', () => {
     expect(container.querySelector('.manual-overlay-up-next')).not.toBeNull();
     // The overlay owns no advance affordance (D-WS2-23).
     expect(container.querySelector('.manual-overlay-advance')).toBeNull();
-    // Pre-05: not yet in prose mode.
-    expect(container.querySelector('.manual-overlay-response')).toBeNull();
   });
 
-  it('swaps the overlay for the response prose at serve_by_type', () => {
+  it('renders nothing at serve_by_type (Step 05)', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
+      <ManualOverlay substrate={substrate} />
     );
 
     startStep(substrate, 'serve_by_type');
 
-    const prose = container.querySelector('.manual-overlay-response');
-    expect(prose).not.toBeNull();
-    expect(prose.textContent).toBe(DEMO_PROSE);
-    expect(container.querySelector('.manual-overlay--prose')).not.toBeNull();
-    // The six teaching elements are gone (prose only).
-    expect(container.querySelector('.manual-overlay-step')).toBeNull();
+    // #6 teaches steps 01-04 only; the served answer is host-owned (D-WS2-27).
+    expect(container.querySelector('.manual-overlay')).toBeNull();
+    expect(container.firstChild).toBeNull();
   });
 
-  it('persists the prose through stock_the_pantry when serve_by_type ends (overlap)', () => {
+  it('renders nothing through stock_the_pantry (Step 06)', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
+      <ManualOverlay substrate={substrate} />
     );
 
     startStep(substrate, 'serve_by_type');
     startStep(substrate, 'stock_the_pantry');
     endStep(substrate, 'serve_by_type');
 
-    const prose = container.querySelector('.manual-overlay-response');
-    expect(prose).not.toBeNull();
-    expect(prose.textContent).toBe(DEMO_PROSE);
+    // Still nothing at Step 06 (the serve/stock overlap).
+    expect(container.querySelector('.manual-overlay')).toBeNull();
+    expect(container.firstChild).toBeNull();
   });
 
-  it('returns to null at idle after the prose turn completes', () => {
+  it('returns to idle (renders nothing) after the turn completes', () => {
     const substrate = createTestSubstrate(BRIEF_MANIFEST);
     const { container } = render(
-      <ManualOverlay substrate={substrate} responseProse={DEMO_PROSE} />
+      <ManualOverlay substrate={substrate} />
     );
 
     startStep(substrate, 'serve_by_type');
