@@ -70,38 +70,6 @@ h1 {
   background: #374151;
 }
 
-.speed-control {
-  display: inline-flex;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.speed-button {
-  font: inherit;
-  font-size: 0.875rem;
-  padding: 0.4rem 0.75rem;
-  background: #fff;
-  color: #374151;
-  border: none;
-  border-right: 1px solid #d1d5db;
-  cursor: pointer;
-}
-
-.speed-button:last-child {
-  border-right: none;
-}
-
-.speed-button:hover {
-  background: #f9fafb;
-}
-
-.speed-button.is-active {
-  background: var(--color-amber-soft);
-  color: var(--color-amber-deep);
-  font-weight: 500;
-}
-
 .run-hint {
   margin: 0 0 1rem 0;
   padding: 0.6rem 0.9rem;
@@ -110,12 +78,6 @@ h1 {
   border-radius: var(--radius-md);
   color: var(--color-amber-deep);
   font-size: 0.875rem;
-}
-
-.mode-status {
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: #6b7280;
 }
 
 .chat-history {
@@ -269,16 +231,128 @@ h1 {
   color: var(--color-stone);
 }
 
-.debug-panel {
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: var(--color-stone);
+/* ── Composed view layout (WO-315.5b) — three zones ──────────────────────
+   Zone 1 anchored Title band; Zone 2 internal scroll region (active live step
+   snaps top-aligned on each press); Zone 3 right slide-out Event log drawer.
+   Existing tokens only (no new tokens — Robin Malfait Rule). */
+.composed {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem); /* fill viewport minus the body's 2rem padding */
 }
 
-.debug-panel summary {
+/* Zone 1 — anchored Title band (first flex item; does not scroll). */
+.composed-head {
+  flex: 0 0 auto;
+  margin-bottom: var(--space-3);
+}
+
+.log-trigger {
+  margin-left: auto;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  padding: 0.3rem 0.7rem;
+  background: #fff;
+  color: var(--color-charcoal);
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.pin-mount {
-  margin: 0.75rem 0;
+.log-trigger:hover {
+  background: #f3f4f6;
+}
+
+/* Zone 2 — scroll region (middle). */
+.composed-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  scroll-padding-top: var(--space-3);
+}
+
+.live-block {
+  scroll-margin-top: var(--space-3);
+}
+
+.live-wayfinding {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Pin surfaced icon-only in the composed live view (host scope; Pin.jsx and
+   Pin.css untouched). The labeled Trace pill remains the accessible step
+   name; the Pin icon is decorative and already aria-hidden. */
+.composed .pin {
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+}
+
+.composed .pin-text {
+  display: none;
+}
+
+/* Zone 3 — Event log drawer (slide-out from the right, over the view). */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+}
+
+.log-drawer {
+  width: min(22rem, 90vw);
+  height: 100%;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  animation: drawer-in var(--transition-base);
+}
+
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .log-drawer {
+    animation: none;
+  }
+}
+
+.log-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.log-drawer-head h2 {
+  margin: 0;
+  font-size: var(--font-size-base);
+}
+
+.drawer-close {
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0.4rem;
+  background: none;
+  border: none;
+  color: var(--color-stone);
+  cursor: pointer;
+}
+
+.log-drawer #event-log {
+  flex: 1 1 auto;
+  max-height: none;
+  border: none;
+  border-radius: 0;
 }
