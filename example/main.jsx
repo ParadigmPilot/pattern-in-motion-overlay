@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useRef, useState } from 'react';
 import { createMockSubstrate, SERVICE_STEPS } from './mock-substrate.js';
-import { Pin, Trace, ManualOverlay, ResponseReadyStrip, createModeGate } from '../src/index.js';
+import { Pin, Trace, ManualOverlay, createModeGate } from '../src/index.js';
 import '../src/tokens.css';
 
 // Demo LLM response prose surfaced by the Step-05 overlay->prose swap, and
@@ -128,8 +128,6 @@ function ComposedView() {
     gate.advance();
   }
 
-  const locked = started; // field frozen while a turn is in progress (D-WS2-16/19)
-
   return (
     <div className="composed">
       {/* Zone 1 — Title band (anchored; hosts the Event log trigger). */}
@@ -174,7 +172,6 @@ function ComposedView() {
                   </div>
                 </div>
                 <div className="assistant-area">
-                  <ResponseReadyStrip substrate={gate} />
                   <ManualOverlay substrate={gate} responseProse={DEMO_RESPONSE_PROSE} />
                 </div>
               </div>
@@ -192,24 +189,25 @@ function ComposedView() {
             Send (submit intake + reveal step 01); mid-turn = Next Step (advance
             steps 02-06). Last element in the scroll region. */}
         <div className="control-bar">
-          <input
-            className="intake-input"
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={locked ? 'Input locked — walking the turn…' : 'Describe the intake…'}
-            disabled={locked}
-            onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
-            aria-label="Intake message"
-          />
           {!started ? (
-            <button
-              className="run-button"
-              onClick={submit}
-              disabled={inputValue.trim().length === 0}
-            >
-              Send
-            </button>
+            <>
+              <input
+                className="intake-input"
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Describe the intake…"
+                onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
+                aria-label="Intake message"
+              />
+              <button
+                className="run-button"
+                onClick={submit}
+                disabled={inputValue.trim().length === 0}
+              >
+                Send
+              </button>
+            </>
           ) : (
             <button
               className="run-button"
