@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useEffect, useRef, useState } from 'react';
 import { createMockSubstrate, SERVICE_STEPS } from './mock-substrate.js';
-import { Pin, Trace, ManualOverlay, createModeGate } from '../src/index.js';
+import { Trace, ManualOverlay, createModeGate } from '../src/index.js';
 import '../src/tokens.css';
 
 // Demo LLM response prose surfaced by the Step-05 overlay->prose swap, and
@@ -163,13 +163,8 @@ function ComposedView() {
             <div className="turn turn-live">
               <div className="msg msg-patron msg-frozen">{livePatron}</div>
               <div className="live-block" ref={liveBlockRef}>
-                {/* Pin surfaced icon-only (host CSS hides .pin-text); the
-                    labeled Trace pill is the accessible step name. */}
-                <div className="live-wayfinding">
-                  <Pin substrate={gate} />
-                  <div className="trace--compact">
-                    <Trace key={activeTurnKey} substrate={gate} />
-                  </div>
+                <div className="trace--compact">
+                  <Trace key={activeTurnKey} substrate={gate} />
                 </div>
                 <div className="assistant-area">
                   <ManualOverlay substrate={gate} responseProse={DEMO_RESPONSE_PROSE} />
@@ -185,39 +180,41 @@ function ComposedView() {
           )}
         </div>
 
-        {/* Split control surface (D-WS2-23): one swapping primary button. Idle =
-            Send (submit intake + reveal step 01); mid-turn = Next Step (advance
-            steps 02-06). Last element in the scroll region. */}
-        <div className="control-bar">
-          {!started ? (
-            <>
-              <input
-                className="intake-input"
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Describe the intake…"
-                onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
-                aria-label="Intake message"
-              />
-              <button
-                className="run-button"
-                onClick={submit}
-                disabled={inputValue.trim().length === 0}
-              >
-                Send
-              </button>
-            </>
-          ) : (
+      </div>
+
+      {/* Split control surface (D-WS2-23): one swapping primary button. Idle =
+          Send (submit intake + reveal step 01); mid-turn = Next Step (advance
+          steps 02-06). Anchored footer — outside the scroll region so the
+          snap-to-top does not drag it. */}
+      <div className="control-bar">
+        {!started ? (
+          <>
+            <input
+              className="intake-input"
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Describe the intake…"
+              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
+              aria-label="Intake message"
+            />
             <button
               className="run-button"
-              onClick={nextStep}
-              disabled={turnComplete}
+              onClick={submit}
+              disabled={inputValue.trim().length === 0}
             >
-              Next Step
+              Send
             </button>
-          )}
-        </div>
+          </>
+        ) : (
+          <button
+            className="run-button"
+            onClick={nextStep}
+            disabled={turnComplete}
+          >
+            Next Step
+          </button>
+        )}
       </div>
 
       {/* Zone 3 — Event log drawer (slide-out from the right; closes on Esc and
