@@ -64,6 +64,14 @@ function ComposedView() {
     (e) => e.type === 'step_started' && e.stepId === 'stock_the_pantry',
   );
 
+  // Step 05 (serve_by_type) reached: the served answer is host-owned (D-WS2-27),
+  // so the host renders it as a normal assistant bubble — identical to an
+  // archived answer (the recognition beat). True from serve through pantry until
+  // the turn archives (events reset to []).
+  const atServe = events.some(
+    (e) => e.type === 'step_started' && e.stepId === 'serve_by_type',
+  );
+
   // On completion the overlay hands the reply off to the transcript: archive
   // the live turn (patron + prose + frozen Trace), remount a clean live Trace,
   // return the substrate to idle, and re-enable the input (D-WS2-19 re-enables
@@ -191,8 +199,16 @@ function ComposedView() {
                 <div className="trace--compact">
                   <Trace key={activeTurnKey} substrate={gate} />
                 </div>
+                {atServe && (
+                  <p className="recognition-line">
+                    Those six steps are what produce the answer you normally just see.
+                  </p>
+                )}
                 <div className="assistant-area">
-                  <ManualOverlay substrate={gate} responseProse={DEMO_RESPONSE_PROSE} />
+                  <ManualOverlay substrate={gate} />
+                  {atServe && (
+                    <div className="msg msg-assistant">{DEMO_RESPONSE_PROSE}</div>
+                  )}
                   {atPantry && (
                     <p className="step-six-signal">
                       Behind the scenes — saving this turn to your recent history.

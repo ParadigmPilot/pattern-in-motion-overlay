@@ -190,8 +190,28 @@ h1 {
   gap: 0.5rem;
   padding: 0.6rem;
   background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+}
+
+/* Amber emphasis lives on the steps (D-WS2-27): the Trace is the highlighted
+   element; the served answer below renders plain — identical to an archived
+   assistant bubble (the recognition beat). Amber STROKE only (no fill) so the
+   per-pill active/complete state colors are unaffected. Existing tokens only. */
+.trace--compact {
+  padding: var(--space-3);
   border: 1px solid var(--color-amber);
   border-radius: var(--radius-md);
+}
+
+/* Recognition line (D-WS2-27): the seam between the amber Trace (the steps) and
+   the plain served answer; narrates that the hidden steps produce the familiar
+   answer. Readable, not amber (amber is the steps). Existing tokens only. */
+.recognition-line {
+  margin: 0;
+  color: var(--color-charcoal);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
 }
 
 .assistant-area {
