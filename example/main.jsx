@@ -170,23 +170,23 @@ function ComposedView() {
       <div className="composed-head">
         <div className="composed-title">
           <h1>Intake Triager</h1>
-          <p className="composed-meta">
-            <span className="composed-with">with</span>
-            <span className="composed-badge">Pattern in Motion</span>
-            <span className="composed-sep" aria-hidden="true">·</span>
-            <span className="composed-preview">Preview</span>
-          </p>
+          <div className="composed-subrow">
+            <p className="composed-meta">
+              <span className="composed-with">with</span>
+              <span className="composed-badge">Pattern in Motion</span>
+              <span className="composed-sep" aria-hidden="true">·</span>
+              <span className="composed-preview">Preview</span>
+            </p>
+            <button
+              className="log-trigger"
+              onClick={() => setLogOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={logOpen}
+            >
+              Event log
+            </button>
+          </div>
         </div>
-        <button
-          className="log-trigger"
-          onClick={() => setLogOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={logOpen}
-          aria-label="Open event log"
-        >
-          <span className="log-trigger-label">Event log</span>
-          <span className="log-trigger-chevron" aria-hidden="true">◂</span>
-        </button>
       </div>
 
       {/* Zone 2 — Scroll region: finished turns stack above; the live turn and

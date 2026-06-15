@@ -128,6 +128,18 @@ h1 {
   flex-direction: column;
   gap: 0.4rem;
   min-width: 0; /* let a long h1 wrap/shrink instead of shoving the trigger */
+  flex: 1; /* span the band so line 2 can push the Event-log button right */
+}
+
+/* Line 2 sub-row: the applied-overlay meta on the left, the Event-log button on
+   the right (pushed by the button's own margin-left: auto). Center-aligned at
+   the row level — the meta group keeps its own internal baseline (6e). Wraps on
+   narrow: the button drops below the meta text rather than collapsing to a glyph. */
+.composed-subrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .composed-head h1 {
@@ -167,25 +179,6 @@ h1 {
 
 .composed-preview {
   color: var(--color-stone);
-}
-
-/* Event-log trigger label vs chevron: the full "Event log" words on wide
-   viewports; on narrow ones the label collapses to a chevron/triangle (the
-   drawer keeps the full heading; aria-label keeps the control legible to
-   screen readers in both states). */
-.log-trigger-chevron {
-  display: none;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-@media (max-width: 30rem) {
-  .log-trigger-label {
-    display: none;
-  }
-  .log-trigger-chevron {
-    display: inline;
-  }
 }
 
 .chat {
