@@ -115,17 +115,76 @@ h1 {
 
 .composed-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+/* Title group: host app name (h1) stacked over the overlay subtitle, so a
+   variable-length third-party app name keeps the full row and the subtitle
+   reads as a proper subtitle rather than a competitor on the same baseline. */
+.composed-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0; /* let a long h1 wrap/shrink instead of shoving the trigger */
+  flex: 1; /* span the band so line 2 can push the Event-log button right */
+}
+
+/* Line 2 sub-row: the applied-overlay meta on the left, the Event-log button on
+   the right (pushed by the button's own margin-left: auto). Center-aligned at
+   the row level — the meta group keeps its own internal baseline (6e). Wraps on
+   narrow: the button drops below the meta text rather than collapsing to a glyph. */
+.composed-subrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Compact the Event-log button horizontally so the meta line + button fit on
+   one row at 380px. Horizontal only — the base rule's vertical padding (tap
+   height) is left untouched. */
+.composed-subrow .log-trigger {
+  padding-inline: 0.55rem;
 }
 
 .composed-head h1 {
   margin: 0;
 }
 
-.composed-tag {
+/* Applied-overlay label (BL-11, GOLD form): the host app name is the title; the
+   line beneath reads "with [Pattern in Motion]" — a relational "with" plus an
+   amber badge — so it reads as the overlay APPLIED to this app, not as the app's
+   own subtitle. "Preview" is a separate, muted build-state tag, kept distinct
+   from the brand badge. Amber triad + stone only; zero new tokens. */
+.composed-meta {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
   font-size: var(--font-size-sm);
+}
+
+.composed-with {
+  color: var(--color-stone);
+}
+
+.composed-badge {
+  padding: 0.1rem 0.4rem;
+  background: var(--color-amber-soft);
+  border: 1px solid var(--color-amber);
+  border-radius: var(--radius-md);
+  color: var(--color-amber-deep);
+  font-weight: var(--font-weight-semibold);
+}
+
+.composed-sep {
+  color: var(--color-stone);
+}
+
+.composed-preview {
   color: var(--color-stone);
 }
 

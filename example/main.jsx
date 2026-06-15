@@ -163,18 +163,30 @@ function ComposedView() {
 
   return (
     <div className="composed">
-      {/* Zone 1 — Title band (anchored; hosts the Event log trigger). */}
+      {/* Zone 1 — Title band (anchored; hosts the Event log trigger). The host
+          app name is the title (h1); the overlay announces itself in the
+          subtitle beneath (title = host, subtitle = overlay). The title group
+          stacks so a variable-length third-party app name keeps the full row. */}
       <div className="composed-head">
-        <h1>Intake Triager</h1>
-        <span className="composed-tag">Pattern in Motion · composed preview</span>
-        <button
-          className="log-trigger"
-          onClick={() => setLogOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={logOpen}
-        >
-          Event log
-        </button>
+        <div className="composed-title">
+          <h1>Intake Triager</h1>
+          <div className="composed-subrow">
+            <p className="composed-meta">
+              <span className="composed-with">with</span>
+              <span className="composed-badge">Pattern in Motion</span>
+              <span className="composed-sep" aria-hidden="true">·</span>
+              <span className="composed-preview">Preview</span>
+            </p>
+            <button
+              className="log-trigger"
+              onClick={() => setLogOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={logOpen}
+            >
+              Event log
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Zone 2 — Scroll region: finished turns stack above; the live turn and
