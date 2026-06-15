@@ -12,9 +12,9 @@ quality: TBD
 alignment: Partial
 
 # === VERSIONING FIELDS ===
-version: "1.4"
+version: "1.5"
 created: "2026-06-10"
-updated: "2026-06-14"
+updated: "2026-06-15"
 owner: Sam R. Harkreader
 
 # === DESCRIPTION FIELDS ===
@@ -35,7 +35,7 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 
 **Total Items:** 13  
 **Next ID:** BL-14  
-**Last Updated:** 2026-06-14
+**Last Updated:** 2026-06-15
 
 > Index-row captures (per breakout 314.4.a): item names below are recorded as
 > rows; individual item files are not yet created. All items target the Cycle
@@ -86,6 +86,17 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 > for the **formal Cycle-315 closure** "validated backlog" pass — not this
 > session checkpoint. **BL-13** stays Captured (parked for 315.7). Captured 11→6;
 > Complete 0→5. \`next_id\`/total unchanged (14 / 13).
+>
+> **v1.5 (2026-06-15):** Session 315.7 — **BL-13** shipped and migrated to
+> **Complete** (host-only WO-315.7a, PR #49): the composed-view Event log is now
+> a **non-modal disclosure** — it persists through the walk (backdrop / Esc /
+> click-outside close removed; toggled from the line-2 button with
+> \`aria-expanded\`), **docks beside the walk** on wide (≥ 64rem, two-pane CSS-grid
+> shell — fills the resting void) and stays a **slide-over peek** on narrow; zero
+> new tokens; \`src/**\` untouched. Discharges BL-13's "subsumes the empty
+> resting-state finding." Captured 6→5; Complete 5→6. The deferred **bulk**
+> migration (BL-1–BL-4, BL-8 → Complete) remains for the **formal Cycle-315
+> closure** validated-backlog pass (315.8). \`next_id\`/total unchanged (14 / 13).
 
 ---
 
@@ -93,11 +104,11 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 
 | Status | Count |
 |--------|-------|
-| Captured | 6 |
+| Captured | 5 |
 | Triaged | 0 |
 | Ready | 0 |
 | Scheduled | 0 |
-| Complete | 5 |
+| Complete | 6 |
 | Rejected | 2 |
 | **Total** | **13** |
 
@@ -112,7 +123,6 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 | BL-3 | Compact Trace variant — keep the six-step sequence but fix it to a small height so Send is reachable without scrolling on any device (single-row chips / state dots; sublabels hidden at strip level). The no-scroll lever. Verdict pending read of \`Trace.css\` vs \`tokens.css\` | High | Cycle 314.6 |
 | BL-4 | Composed-view redesign **(expanded 315.4 — owner composed-view vision)**. **(a) Control-surface split:** **Send** submits the intake and reveals **step 01** (\`take_the_order\`) — the visitor's submit *is* Take the Order (D-WS1-12); a dedicated **Next Step** control advances the Manual walk across **steps 02–06**. **(b) Surface the Pin** in the composed view, **unlabeled** — its icon matches the active Trace pill, so it self-explains; **supersedes** the prior "fold out / remove the Pin" intent. **(c)** Debug summary drops "Pin renderer" → **"Debug · Event log"** (Pin no longer nested; Event log unchanged). **(d) Order:** Trace (six pills) → Send / Next Step controls → Manual overlay. Absorbs the empty-header check (BL-9). **Canon dependency:** reverses D-WS2-23 (Send-only) → station-arch **D-WS2-26** (authored 315.4) gates the build. Touches #3's GOLD role. Automatic-toggle fate decided at build. | Medium | Cycle 314.6; expanded 315.4 |
 | BL-8 | Add a "data landed" moment after Stock the Pantry (persistence signal — "now in the database"). Deferred to Cycle 316, gated on the persistence layer (#8–#10). **Sub-note (315.4):** an **interim copy-only** line at step 06 (e.g. "Behind the scenes — saving this turn to your recent history") can ship in the 315 composed-view pass to give the 05→06 transition a visible, honest change; the true "now in the database" signal stays gated on #8–#10 (Cycle 316). _(Interim line shipped 315.5, PR #41.)_ | Medium | Cycle 314.6 |
-| BL-13 | **Event-log disclosure redesign.** Today the log is a **modal** drawer — backdrop dims and disables the walk; click-outside/Esc closes it — so you can't watch events fire *while you advance a turn*, which is the log's whole purpose. Make it **non-modal**: drop the backdrop + click-outside-close, stop disabling the main view, and let it **persist** through the walk (toggle on/off via the line-2 button; \`aria-expanded\` reflects state). **Responsive:** on **wide** viewports it **docks beside** the walk (two-pane — also fills the empty right-hand space); on **narrow** the modal/overlay peek remains (no room to dock). Host-only (\`example/*\`); design pass + owner sign-off before build (like BL-12). _Subsumes the wide-viewport "empty resting-state" finding._ Parked for **315.7**. | Medium | Cycle 315.6 (owner) |
 
 ---
 
@@ -149,6 +159,7 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 | BL-10 | Idle **welcome surface** before the first turn — guarded \`.composed-welcome\` block (lens-framed copy) at the top of \`.chat\`, shown only when idle; clears when a turn starts. Host-only | 315.6 (PR #48) | 315 |
 | BL-11 | **Composed-view header — GOLD.** Stacked host \`h1\` title; line 2 = applied-overlay label (\`with\` + amber **"Pattern in Motion"** badge + separated muted **\`Preview\`**); pill polish (separator, baseline, spacing, title/label gap); **labeled "Event log" button** on line 2 (chevron retired); fits at 380px. Host-only; zero new tokens. _Event-log open/close behavior = BL-13._ | 315.6 (PR #46) | 315 |
 | BL-12 | **Teaching-panel tier separation (#6).** Three tiers (identity / explanation / continuity) set off by stone \`color-mix\` hairlines + a step of space (between-separation; no sub-\`--space-3\` token); amber left-accent on the IN CODE line; continuity as a muted footer. No reorder (D-WS2-11). Overlay \`src\`; existing tokens only | 315.6 (PR #47) | 315 |
+| BL-13 | **Event-log disclosure — non-modal.** Modal drawer → non-modal disclosure: persists through the walk (backdrop / Esc / click-outside close removed; toggled from the line-2 button, \`aria-expanded\` reflects state, \`aria-controls="event-log-panel"\`); **docks beside the walk** on wide (≥ 64rem, two-pane CSS-grid shell — fills the resting void); **slide-over peek** on narrow. Host-only (\`example/*\`); zero new tokens; \`src/**\` untouched. Owner sign-off preceded the build (BL-12 precedent). | 315.7 (PR #49) | 315 |
 
 ---
 
@@ -162,4 +173,4 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 ---
 
 _Index maintained by: Sam R. Harkreader_  
-_Last updated: 2026-06-14_
+_Last updated: 2026-06-15_
