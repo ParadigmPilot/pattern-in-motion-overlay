@@ -49,13 +49,25 @@
   font-size: var(--font-size-sm);
 }
 
+/* Explanation tier — set off from the identity tier above by a quiet stone
+   hairline + a step of space. The spacing scale floors at --space-3, so tiers
+   are created by widening *between* (not tightening within); no sub--space-3
+   token is invented (Robin Malfait rule). */
 .manual-overlay-plain {
   margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--color-stone) 25%, transparent);
 }
 
+/* IN CODE line — an amber left-accent extends the amber-deep label into a
+   "this is the code frame" cue, marking the technical register apart from the
+   plain-English line above it. Heavier (2px) than the tier hairline so it reads
+   as an accent, not a divider. */
 .manual-overlay-in-code {
   margin: 0;
   font-size: var(--font-size-sm);
+  border-left: 2px solid var(--color-amber);
+  padding-left: var(--space-3);
 }
 
 .manual-overlay-in-code-label {
@@ -63,7 +75,16 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.manual-overlay-just-finished,
+/* Continuity tier — a quiet muted footer, set off from the explanation tier by
+   the same stone hairline + step of space. just-finished carries the hairline
+   (tier lead); up-next trails it. Both stay muted stone / small. */
+.manual-overlay-just-finished {
+  margin: 0;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--color-stone) 25%, transparent);
+}
 .manual-overlay-up-next {
   margin: 0;
   color: var(--color-stone);
