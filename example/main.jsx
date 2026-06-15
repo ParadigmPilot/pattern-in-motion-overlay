@@ -195,11 +195,15 @@ function ComposedView() {
         <div className="chat">
           {history.length === 0 && livePatron === null && (
             <div className="composed-welcome">
-              <h2 className="composed-welcome-title">A live look at Pattern in Motion</h2>
+              <h2 className="composed-welcome-title">The six steps you don’t normally see</h2>
               <p className="composed-welcome-body">
-                Intake Triager handles every message the way a kitchen handles an
-                order — six Service steps, start to finish. Describe an intake below
-                to send your first one and watch the steps run.
+                Every LLM app turns your message into an answer. The Restaurant
+                Pattern is a way to see that work as six Service steps — the way a
+                kitchen turns an order into a finished plate. Normally you only see
+                the two ends: your message in, the answer out. That’s one <em>turn</em>,
+                and the six steps inside it stay hidden. This overlay opens them up —
+                describe an intake below, then walk the turn one step at a time and
+                study each one.
               </p>
             </div>
           )}
