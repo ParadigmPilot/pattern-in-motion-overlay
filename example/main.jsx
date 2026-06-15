@@ -193,6 +193,20 @@ function ComposedView() {
           the control are the last things; nothing renders below the control. */}
       <div className="composed-scroll">
         <div className="chat">
+          {history.length === 0 && livePatron === null && (
+            <div className="composed-welcome">
+              <h2 className="composed-welcome-title">The six steps you don’t normally see</h2>
+              <p className="composed-welcome-body">
+                Every LLM app turns your message into an answer. The Restaurant
+                Pattern is a way to see that work as six Service steps — the way a
+                kitchen turns an order into a finished plate. Normally you only see
+                the two ends: your message in, the answer out. That’s one <em>turn</em>,
+                and the six steps inside it stay hidden. This overlay opens them up —
+                describe an intake below, then walk the turn one step at a time and
+                study each one.
+              </p>
+            </div>
+          )}
           {history.map((turn, i) => (
             <div key={`turn-${i}`} className="turn">
               <div className="msg msg-patron">{turn.patron}</div>

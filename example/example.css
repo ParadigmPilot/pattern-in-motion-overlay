@@ -188,6 +188,30 @@ h1 {
   color: var(--color-stone);
 }
 
+/* Idle welcome surface (BL-10): the teaching beat that fills the composed view
+   before the first turn. Rendered only when history is empty and no live turn
+   is running; it clears automatically when a turn begins. Existing tokens only. */
+.composed-welcome {
+  max-width: 32rem;
+  margin: var(--space-5) auto;
+  padding: 0 var(--space-4);
+  text-align: center;
+}
+
+.composed-welcome-title {
+  margin: 0 0 var(--space-3);
+  color: var(--color-charcoal);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.composed-welcome-body {
+  margin: 0;
+  color: var(--color-stone);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+}
+
 .chat {
   display: flex;
   flex-direction: column;
