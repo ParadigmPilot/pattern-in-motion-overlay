@@ -193,6 +193,16 @@ function ComposedView() {
           the control are the last things; nothing renders below the control. */}
       <div className="composed-scroll">
         <div className="chat">
+          {history.length === 0 && livePatron === null && (
+            <div className="composed-welcome">
+              <h2 className="composed-welcome-title">A live look at Pattern in Motion</h2>
+              <p className="composed-welcome-body">
+                Intake Triager handles every message the way a kitchen handles an
+                order — six Service steps, start to finish. Describe an intake below
+                to send your first one and watch the steps run.
+              </p>
+            </div>
+          )}
           {history.map((turn, i) => (
             <div key={`turn-${i}`} className="turn">
               <div className="msg msg-patron">{turn.patron}</div>
