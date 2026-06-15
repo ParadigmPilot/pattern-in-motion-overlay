@@ -389,17 +389,14 @@ h1 {
   scroll-margin-top: var(--space-3);
 }
 
-/* Zone 3 — Event log drawer (slide-out from the right, over the view). */
-.drawer-backdrop {
+/* Zone 3 — Event log (BL-13): a non-modal disclosure. Narrow = a slide-over peek
+   from the right (no backdrop); wide = docked in grid column 2 (see the 64rem
+   media query below). Mobile-first: these base rules are the narrow slide-over;
+   the media query overrides to the in-flow dock. */
+.log-dock {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  display: flex;
-  justify-content: flex-end;
-  z-index: 10;
-}
-
-.log-drawer {
+  top: 0;
+  right: 0;
   width: min(22rem, 90vw);
   height: 100%;
   background: #fff;
@@ -407,6 +404,7 @@ h1 {
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
+  z-index: 10;
   animation: drawer-in var(--transition-base);
 }
 
@@ -416,7 +414,7 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .log-drawer {
+  .log-dock {
     animation: none;
   }
 }
@@ -445,9 +443,47 @@ h1 {
   cursor: pointer;
 }
 
-.log-drawer #event-log {
+.log-dock #event-log {
   flex: 1 1 auto;
   max-height: none;
   border: none;
   border-radius: 0;
+}
+
+/* Two-pane shell (BL-13): wraps the walk (.composed) and the log (.log-dock).
+   Mobile-first — at narrow it is a passthrough (walk owns the page; the log is
+   the fixed slide-over above). At >=64rem it becomes a centered two-column grid
+   and the log docks beside the walk, filling the right band that rests empty
+   today. Existing tokens only (the rem literals here are media/track sizes, not
+   design tokens). */
+@media (min-width: 64rem) {
+  .composed-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 44rem) 22rem;
+    gap: var(--space-4);
+    max-width: 68rem;
+    margin: 0 auto;
+    height: calc(100vh - 4rem);
+  }
+
+  /* The walk fills the shell row instead of owning its own viewport height, and
+     the shell (not the walk) centers the pair. */
+  .composed {
+    height: 100%;
+    margin: 0;
+  }
+
+  /* Docked, in-flow column 2 — not an overlay: no fixed position, no shadow, no
+     slide animation. A bordered panel beside the walk. */
+  .log-dock {
+    position: static;
+    width: auto;
+    height: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    animation: none;
+    overflow: hidden;
+    z-index: auto;
+  }
 }

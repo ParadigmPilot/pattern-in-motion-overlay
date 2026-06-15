@@ -37,8 +37,15 @@ function ComposedView() {
   const [pendingFirstStep, setPendingFirstStep] = useState(false);
   const [inputValue, setInputValue] = useState(DEMO_PATRON_SEED);
 
-  // Event log drawer open/closed (Zone 3). Opened from the Title band.
-  const [logOpen, setLogOpen] = useState(false);
+  // Event log disclosure open/closed (BL-13). Non-modal: persists through the
+  // walk, toggled from the line-2 button. Default open on wide (fills the dock
+  // beside the walk — the wide resting void), closed on narrow.
+  const [logOpen, setLogOpen] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(min-width: 64rem)').matches,
+  );
 
   // Scroll target: the live step block snaps top-aligned under the Title band
   // on each Send / Next Step press (Zone 2).
@@ -113,14 +120,6 @@ function ComposedView() {
     liveBlockRef.current?.scrollIntoView?.({ block: 'start' });
   }, [events.length, livePatron]);
 
-  // Esc closes the Event log drawer (Zone 3).
-  useEffect(() => {
-    if (!logOpen) return;
-    const onKey = (e) => { if (e.key === 'Escape') setLogOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [logOpen]);
-
   // Auto-grow the intake textarea to fit its content; CSS max-height caps the
   // visible height at ~3 lines and scrolls past that. Resetting to 'auto'
   // before measuring lets the field shrink back as content is deleted.
@@ -162,6 +161,7 @@ function ComposedView() {
   }
 
   return (
+    <div className="composed-shell">
     <div className="composed">
       {/* Zone 1 — Title band (anchored; hosts the Event log trigger). The host
           app name is the title (h1); the overlay announces itself in the
@@ -179,9 +179,9 @@ function ComposedView() {
             </p>
             <button
               className="log-trigger"
-              onClick={() => setLogOpen(true)}
-              aria-haspopup="dialog"
+              onClick={() => setLogOpen((open) => !open)}
               aria-expanded={logOpen}
+              aria-controls="event-log-panel"
             >
               Event log
             </button>
@@ -289,39 +289,37 @@ function ComposedView() {
         )}
       </div>
 
-      {/* Zone 3 — Event log drawer (slide-out from the right; closes on Esc and
-          on backdrop click). Replaces the retired in-flow debug panel. */}
+    </div>
+
+      {/* Zone 3 — Event log (BL-13): a non-modal disclosure. Docks beside the
+          walk on wide (grid column 2 — fills the resting void); slides over from
+          the right on narrow. No backdrop, no click-outside / Esc close — it
+          persists through the walk and toggles only from the line-2 button (and
+          its own ×). Not a dialog; a disclosure panel the button controls. */}
       {logOpen && (
-        <div className="drawer-backdrop" onClick={() => setLogOpen(false)}>
-          <aside
-            className="log-drawer"
-            role="dialog"
-            aria-label="Event log"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="log-drawer-head">
-              <h2>Event log</h2>
-              <button
-                className="drawer-close"
-                onClick={() => setLogOpen(false)}
-                aria-label="Close event log"
-              >
-                ×
-              </button>
-            </div>
-            <div id="event-log">
-              {events.length === 0 ? (
-                <div className="event-row"><em>Events will appear here once a turn runs.</em></div>
-              ) : (
-                events.map((e, i) => (
-                  <div key={i} className={`event-row ${e.type}`}>
-                    <strong>{e.type}</strong> &nbsp; {e.stepId} &nbsp; <code>{new Date(e.timestamp).toISOString().slice(11, 23)}</code>
-                  </div>
-                ))
-              )}
-            </div>
-          </aside>
-        </div>
+        <aside className="log-dock" id="event-log-panel" aria-label="Event log">
+          <div className="log-drawer-head">
+            <h2>Event log</h2>
+            <button
+              className="drawer-close"
+              onClick={() => setLogOpen(false)}
+              aria-label="Close event log"
+            >
+              ×
+            </button>
+          </div>
+          <div id="event-log">
+            {events.length === 0 ? (
+              <div className="event-row"><em>Events will appear here once a turn runs.</em></div>
+            ) : (
+              events.map((e, i) => (
+                <div key={i} className={`event-row ${e.type}`}>
+                  <strong>{e.type}</strong> &nbsp; {e.stepId} &nbsp; <code>{new Date(e.timestamp).toISOString().slice(11, 23)}</code>
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
       )}
     </div>
   );
