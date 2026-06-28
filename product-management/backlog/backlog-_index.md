@@ -12,9 +12,9 @@ quality: TBD
 alignment: Partial
 
 # === VERSIONING FIELDS ===
-version: "1.6"
+version: "1.7"
 created: "2026-06-10"
-updated: "2026-06-25"
+updated: "2026-06-28"
 owner: Sam R. Harkreader
 
 # === DESCRIPTION FIELDS ===
@@ -35,7 +35,7 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 
 **Total Items:** 14  
 **Next ID:** BL-15  
-**Last Updated:** 2026-06-25
+**Last Updated:** 2026-06-28
 
 > Index-row captures (per breakout 314.4.a): item names below are recorded as
 > rows; individual item files are not yet created. All items target the Cycle
@@ -109,6 +109,19 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 > during the live walk; **re-confirm on the current deployed build.** Captured
 > 5→6; total 13→14; `next_id` 14→15.
 
+> **v1.7 (2026-06-28):** Session 317.4 — **BL-14 reframed (ownership correction).**
+> The dock-overflow shares one root with the host footer-pin issue (intake-triager
+> **BL-12**): on wide (≥64rem) the two-pane grid (`.composed-shell`) sets no
+> `grid-template-rows`, so `height:100%` on the column / dock is indefinite and
+> bottom-anchored content (footer **and** log) falls past the viewport. The
+> deployed host renders **host `composed-view.css`** (post-BL-10 split), **not**
+> the overlay's `example.css` — so BL-14's `example.css` framing targets a file
+> the live build no longer uses. Resolution moved **host-side**: fixed by
+> intake-triager **WO-317.4b** (wide grid-row bind), tracked under BL-12. BL-14
+> stays **Captured pending the same live confirm**, then migrates to
+> **Rejected-superseded (host-resolved)** — **no overlay change.** Counts
+> unchanged (14 / 15).
+
 ---
 
 ## Summary by Status
@@ -134,7 +147,7 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 | BL-3 | Compact Trace variant — keep the six-step sequence but fix it to a small height so Send is reachable without scrolling on any device (single-row chips / state dots; sublabels hidden at strip level). The no-scroll lever. Verdict pending read of `Trace.css` vs `tokens.css` | High | Cycle 314.6 |
 | BL-4 | Composed-view redesign **(expanded 315.4 — owner composed-view vision)**. **(a) Control-surface split:** **Send** submits the intake and reveals **step 01** (`take_the_order`) — the visitor's submit *is* Take the Order (D-WS1-12); a dedicated **Next Step** control advances the Manual walk across **steps 02–06**. **(b) Surface the Pin** in the composed view, **unlabeled** — its icon matches the active Trace pill, so it self-explains; **supersedes** the prior "fold out / remove the Pin" intent. **(c)** Debug summary drops "Pin renderer" → **"Debug · Event log"** (Pin no longer nested; Event log unchanged). **(d) Order:** Trace (six pills) → Send / Next Step controls → Manual overlay. Absorbs the empty-header check (BL-9). **Canon dependency:** reverses D-WS2-23 (Send-only) → station-arch **D-WS2-26** (authored 315.4) gates the build. Touches #3's GOLD role. Automatic-toggle fate decided at build. | Medium | Cycle 314.6; expanded 315.4 |
 | BL-8 | Add a "data landed" moment after Stock the Pantry (persistence signal — "now in the database"). Deferred to Cycle 316, gated on the persistence layer (#8–#10). **Sub-note (315.4):** an **interim copy-only** line at step 06 (e.g. "Behind the scenes — saving this turn to your recent history") can ship in the 315 composed-view pass to give the 05→06 transition a visible, honest change; the true "now in the database" signal stays gated on #8–#10 (Cycle 316). _(Interim line shipped 315.5, PR #41.)_ | Medium | Cycle 314.6 |
-| BL-14 | **Event-log dock overflows the viewport bottom.** In the composed view, the docked Event log (`.log-dock` / `#event-log`) is not bounded to the viewport — its content extends **below the page edge** instead of scrolling inside its own panel. `.log-dock #event-log` sets `max-height: none` and relies on the flex/grid parent to bound height; when the column height does not establish (the wide two-pane grid row not stretching to `calc(100vh - 4rem)`), the log grows unbounded. Likely the **same height-establishment root** as the footer-pin issue BL-4 closed. Fix is **CSS-only in `example.css`** (bound `#event-log` scroll within the dock / fix the grid-row height) — **zero new tokens** (Robin Malfait Rule); `src/**` untouched (BL-13 `example/*` precedent). **P-9: overlay-repo item — separate WO from any host WO.** Observed on the **pre-317.2a-merge build** during the 316/317 live walk; **re-confirm on the current deployed build.** Overlay-owned (`example/example.css`). | Medium | Cycle 317.2 (live walk eyes-on) |
+| BL-14 | **Event-log dock overflows the viewport bottom.** In the composed view, the docked Event log (`.log-dock` / `#event-log`) is not bounded to the viewport — its content extends **below the page edge** instead of scrolling inside its own panel. `.log-dock #event-log` sets `max-height: none` and relies on the flex/grid parent to bound height; when the column height does not establish (the wide two-pane grid row not stretching to `calc(100vh - 4rem)`), the log grows unbounded. Likely the **same height-establishment root** as the footer-pin issue BL-4 closed. Fix is **CSS-only in `example.css`** (bound `#event-log` scroll within the dock / fix the grid-row height) — **zero new tokens** (Robin Malfait Rule); `src/**` untouched (BL-13 `example/*` precedent). **P-9: overlay-repo item — separate WO from any host WO.** Observed on the **pre-317.2a-merge build** during the 316/317 live walk; **re-confirm on the current deployed build.** Overlay-owned (`example/example.css`). **Reframed 317.4:** root = the wide grid-row height in **host** `composed-view.css` (not `example.css`); resolved host-side by intake-triager **WO-317.4b** under **BL-12**; migrates to Rejected-superseded on confirm. No overlay change. | Medium | Cycle 317.2 (live walk eyes-on) |
 
 ---
 
@@ -185,4 +198,4 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 ---
 
 _Index maintained by: Sam R. Harkreader_  
-_Last updated: 2026-06-25_
+_Last updated: 2026-06-28_
