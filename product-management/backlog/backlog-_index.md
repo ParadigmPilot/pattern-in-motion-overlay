@@ -12,7 +12,7 @@ quality: TBD
 alignment: Partial
 
 # === VERSIONING FIELDS ===
-version: "1.7"
+version: "1.8"
 created: "2026-06-10"
 updated: "2026-06-28"
 owner: Sam R. Harkreader
@@ -122,18 +122,26 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 > **Rejected-superseded (host-resolved)** — **no overlay change.** Counts
 > unchanged (14 / 15).
 
+> **v1.8 (2026-06-28):** Session 317.4 — **BL-14 → Rejected (superseded,
+> host-resolved).** The dock-overflow root was the wide grid-row height in **host**
+> `composed-view.css`, fixed by intake-triager **WO-317.4b / PR #53** (tracked
+> under BL-12) and owner live-confirmed (log scrolls within `.log-dock`, no
+> viewport overflow). No overlay change was needed; the original `example.css`
+> framing targeted a file the deployed host no longer renders. Captured 6→5;
+> Rejected 2→3. `next_id`/total unchanged (15 / 14).
+
 ---
 
 ## Summary by Status
 
 | Status | Count |
 |--------|-------|
-| Captured | 6 |
+| Captured | 5 |
 | Triaged | 0 |
 | Ready | 0 |
 | Scheduled | 0 |
 | Complete | 6 |
-| Rejected | 2 |
+| Rejected | 3 |
 | **Total** | **14** |
 
 ---
@@ -147,7 +155,6 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 | BL-3 | Compact Trace variant — keep the six-step sequence but fix it to a small height so Send is reachable without scrolling on any device (single-row chips / state dots; sublabels hidden at strip level). The no-scroll lever. Verdict pending read of `Trace.css` vs `tokens.css` | High | Cycle 314.6 |
 | BL-4 | Composed-view redesign **(expanded 315.4 — owner composed-view vision)**. **(a) Control-surface split:** **Send** submits the intake and reveals **step 01** (`take_the_order`) — the visitor's submit *is* Take the Order (D-WS1-12); a dedicated **Next Step** control advances the Manual walk across **steps 02–06**. **(b) Surface the Pin** in the composed view, **unlabeled** — its icon matches the active Trace pill, so it self-explains; **supersedes** the prior "fold out / remove the Pin" intent. **(c)** Debug summary drops "Pin renderer" → **"Debug · Event log"** (Pin no longer nested; Event log unchanged). **(d) Order:** Trace (six pills) → Send / Next Step controls → Manual overlay. Absorbs the empty-header check (BL-9). **Canon dependency:** reverses D-WS2-23 (Send-only) → station-arch **D-WS2-26** (authored 315.4) gates the build. Touches #3's GOLD role. Automatic-toggle fate decided at build. | Medium | Cycle 314.6; expanded 315.4 |
 | BL-8 | Add a "data landed" moment after Stock the Pantry (persistence signal — "now in the database"). Deferred to Cycle 316, gated on the persistence layer (#8–#10). **Sub-note (315.4):** an **interim copy-only** line at step 06 (e.g. "Behind the scenes — saving this turn to your recent history") can ship in the 315 composed-view pass to give the 05→06 transition a visible, honest change; the true "now in the database" signal stays gated on #8–#10 (Cycle 316). _(Interim line shipped 315.5, PR #41.)_ | Medium | Cycle 314.6 |
-| BL-14 | **Event-log dock overflows the viewport bottom.** In the composed view, the docked Event log (`.log-dock` / `#event-log`) is not bounded to the viewport — its content extends **below the page edge** instead of scrolling inside its own panel. `.log-dock #event-log` sets `max-height: none` and relies on the flex/grid parent to bound height; when the column height does not establish (the wide two-pane grid row not stretching to `calc(100vh - 4rem)`), the log grows unbounded. Likely the **same height-establishment root** as the footer-pin issue BL-4 closed. Fix is **CSS-only in `example.css`** (bound `#event-log` scroll within the dock / fix the grid-row height) — **zero new tokens** (Robin Malfait Rule); `src/**` untouched (BL-13 `example/*` precedent). **P-9: overlay-repo item — separate WO from any host WO.** Observed on the **pre-317.2a-merge build** during the 316/317 live walk; **re-confirm on the current deployed build.** Overlay-owned (`example/example.css`). **Reframed 317.4:** root = the wide grid-row height in **host** `composed-view.css` (not `example.css`); resolved host-side by intake-triager **WO-317.4b** under **BL-12**; migrates to Rejected-superseded on confirm. No overlay change. | Medium | Cycle 317.2 (live walk eyes-on) |
 
 ---
 
@@ -194,8 +201,9 @@ collection_type: backlog   # ai-practice Anti-Pattern 6 (lowercase) — see note
 |----|------|--------|
 | BL-5 | Rename "Trace renderer" → "Service Steps" | Dropped as stale at 315.6 — no "Trace renderer" / dev-facing renderer label exists in the shipped composed view (retired by the 315.5 redesign). Nothing to rename. (Recorded per cycle-315-baseline v1.3.) |
 | BL-9 | Suppress renderer section headers when empty | Absorbed into BL-4 — the composed redesign retires the standalone renderer headers (BL-5) and removes the Pin, so no empty header survives; the "no header over empty space" check folds into BL-4's acceptance criteria |
+| BL-14 | Event-log dock overflows the viewport bottom | **Superseded — host-resolved (317.4).** Root was the wide grid-row height in **host** `composed-view.css`, not the overlay; fixed by intake-triager **WO-317.4b / PR #53** under **BL-12** and owner live-confirmed (log scrolls within `.log-dock`). The original `example.css` framing targeted a file the deployed host no longer renders. No overlay change. |
 
 ---
 
 _Index maintained by: Sam R. Harkreader_  
-_Last updated: 2026-06-28_
+_Last updated: 2026-06-28 (v1.8)_
