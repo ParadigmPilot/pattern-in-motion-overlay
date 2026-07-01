@@ -103,9 +103,15 @@ export function ManualOverlay({ substrate }) {
   return (
     <section
       className="manual-overlay"
-      aria-live="polite"
       data-step-id={currentStepId}
     >
+      <div
+        className="manual-overlay-announce"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        Step {stepNumber}, {manifest.restaurant_label}
+      </div>
       <header className="manual-overlay-step">
         <span className="manual-overlay-step-index">Step {stepNumber} ·</span>{' '}
         <strong className="manual-overlay-anchor">{manifest.restaurant_label}</strong>

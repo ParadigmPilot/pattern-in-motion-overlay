@@ -55,6 +55,7 @@ export function Pin({ substrate }) {
   return (
     <div
       className="pin pin-active"
+      role="status"
       aria-live="polite"
       aria-atomic="true"
       data-step-id={activeStepId}

@@ -124,6 +124,22 @@
   font-style: italic;
 }
 
+/* Screen-reader-only pill state ("upcoming" / "done"). Visually hidden with the
+   same clip idiom used by the compact variant; announced by assistive tech so
+   pill state is never conveyed by color/shape alone (accessibility.md RULE-01).
+   No new design token (Robin Malfait Rule). */
+.pill-state-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- Entrance animation on active state ---------- */
 
 @keyframes pill-active-enter {

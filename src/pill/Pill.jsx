@@ -1,5 +1,14 @@
 import './Pill.css';
 
+// Screen-reader state vocabulary — announces pill state to assistive tech so
+// state is never conveyed by color/shape alone (accessibility.md RULE-01).
+// 'active' is intentionally absent: aria-current="step" announces the current
+// step, so a hidden "current" word would double-announce.
+const STATE_LABEL = {
+  queued: 'upcoming',
+  complete: 'done',
+};
+
 /**
  * Pill primitive — a single Service-step badge.
  *
@@ -43,7 +52,7 @@ export function Pill({ stepId, state, manifest, icon }) {
       data-step-id={stepId}
       aria-current={state === 'active' ? 'step' : undefined}
     >
-      {icon ? <span className="pill-icon">{icon}</span> : null}
+      {icon ? <span className="pill-icon" aria-hidden="true">{icon}</span> : null}
       {manifest ? (
         <>
           <strong className="pill-anchor">{manifest.restaurant_label}</strong>
@@ -52,6 +61,9 @@ export function Pill({ stepId, state, manifest, icon }) {
       ) : (
         <span className="pill-fallback">{stepId}</span>
       )}
+      {STATE_LABEL[state] ? (
+        <span className="pill-state-sr">{STATE_LABEL[state]}</span>
+      ) : null}
     </li>
   );
 }
