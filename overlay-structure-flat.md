@@ -12,12 +12,12 @@ example/main.jsx
 example/manifests-fixture.js
 example/mock-substrate.js
 LICENSE
+overlay-structure-flat.md
 package.json
 package-lock.json
 product-management
 product-management/backlog
 product-management/backlog/backlog-_index.md
-project-structure-flat.md
 README.md
 SIGNATURES.md
 src
@@ -59,7 +59,7 @@ src/trace/Trace.jsx
 src/trace/Trace.test.jsx
 test
 test/setup.js
-utils
-utils/get-file-structure.ps1
+utilities
+utilities/get-file-structure.ps1
 vite.config.js
 vitest.config.js
